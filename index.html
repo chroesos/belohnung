@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Belohnungssystem</title>
+  
+  <!-- Apple PWA Meta-Tags für iPad / Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Belohnung">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#131525">
+
+  <style>
+    /* ==========================================================================
+       CSS Reset & iPad / Touch Optimierungen
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: fixed;
+      touch-action: none;
+      overscroll-behavior: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Comic Sans MS", "Marker Felt", sans-serif;
+      background: radial-gradient(circle at 50% 30%, #20243d 0%, #0e101d 100%);
+      color: #ffffff;
+    }
+
+    /* App-Layout */
+    #app {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      padding: env(safe-area-inset-top, 16px) env(safe-area-inset-right, 16px) env(safe-area-inset-bottom, 16px) env(safe-area-inset-left, 16px);
+      position: relative;
+    }
+
+    /* ==========================================================================
+       Kopfbereich / Header mit Zähler und Lock/Settings Steuerung
+       ========================================================================== */
+    header {
+      width: 100%;
+      max-width: 980px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 14px;
+      z-index: 50;
+      position: relative;
+    }
+
+    .counter-badge {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      padding: 6px 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .counter-value {
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: #ffd15c;
+      text-shadow: 0 2px 10px rgba(255, 209, 92, 0.5);
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .counter-max {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Lock/Unlock Button in der oberen Leiste */
+    .lock-state-btn {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      color: #ffffff;
+      font-size: 0.9rem;
+      font-weight: 700;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .lock-state-btn:active {
+      transform: scale(0.93);
+    }
+
+    .lock-state-btn.is-locked {
+      background: rgba(245, 158, 11, 0.22);
+      border-color: rgba(245, 158, 11, 0.6);
+      color: #fbbf24;
+      box-shadow: 0 6px 22px rgba(245, 158, 11, 0.3);
+    }
+
+    .lock-state-btn.is-unlocked {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: rgba(16, 185, 129, 0.5);
+      color: #34d399;
+    }
+
+    /* Settings-Zahnrad in oberer rechter Ecke */
+    .settings-corner-btn {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.3);
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .settings-corner-btn:active {
+      transform: scale(0.92);
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Floating Toast Notification */
+    .toast-notification {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-25px);
+      background: rgba(24, 27, 46, 0.96);
+      border: 1.5px solid rgba(245, 158, 11, 0.6);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      color: #fbbf24;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 180;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+      max-width: 90vw;
+    }
+
+    .toast-notification.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ==========================================================================
+       Spielbereich (Arena: Belohnung - Figur - Abzug)
+       ========================================================================== */
+    .arena {
+      flex: 1;
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      position: relative;
+      transition: all 0.35s ease;
+    }
+
+    .lane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      height: 100%;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .lane.hidden {
+      display: none !important;
+    }
+
+    /* Hauptfigur und animierte Aura */
+    .character-stage {
+      position: relative;
+      width: 250px;
+      height: 250px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    /* ==========================================================================
+       Animiertes, dynamisch intensiver werdendes Aura-System
+       ========================================================================== */
+    .aura-system {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 260px;
+      height: 260px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.45s ease, filter 0.45s ease;
+      --aura-intensity: 0;
+      --aura-scale: 0.6;
+      --aura-spin-duration: 8s;
+      --aura-pulse-duration: 2.2s;
+    }
+
+    .aura-system.active {
+      opacity: 1;
+    }
+
+    /* Aura-Ebenen */
+    .aura-layer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+
+    /* 1. Weicher Kern-Glow */
+    .aura-glow {
+      width: 230px;
+      height: 230px;
+      filter: blur(14px);
+      transform: translate(-50%, -50%) scale(var(--aura-scale));
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+      animation: auraBreathe var(--aura-pulse-duration) infinite ease-in-out;
+    }
+
+    /* 2. Rotierende Strahlen- / Wirbelebene */
+    .aura-rays {
+      width: 280px;
+      height: 280px;
+      opacity: calc(0.3 + var(--aura-intensity) * 0.7);
+      transform: translate(-50%, -50%) scale(calc(var(--aura-scale) * 1.08));
+      transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: auraSpinCw var(--aura-spin-duration) infinite linear;
+      filter: blur(8px);
+    }
+
+    /* 3. Zweiter gegenläufiger Wirbelring */
+    .aura-ring {
+      width: 250px;
+      height: 250px;
+      opacity: calc(0.2 + var(--aura-intensity) * 0.65);
+      transform: translate(-50%, -50%) scale(calc(var(--aura-scale) * 0.95));
+      animation: auraSpinCcw calc(var(--aura-spin-duration) * 1.35) infinite linear;
+      filter: blur(5px);
+    }
+
+    /* 4. Pulsierende Schockwelle */
+    .aura-waves {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      animation: auraWaveOut var(--aura-pulse-duration) infinite ease-out;
+      opacity: calc(0.25 + var(--aura-intensity) * 0.75);
+    }
+
+    /* Schockwellen-Impuls bei Belohnung */
+    .aura-system.flare-pulse {
+      animation: auraFlareBurst 0.6s ease-out;
+    }
+
+    @keyframes auraFlareBurst {
+      0% { transform: translate(-50%, -50%) scale(1); filter: brightness(1.6); }
+      50% { transform: translate(-50%, -50%) scale(1.22); filter: brightness(2.2); }
+      100% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+    }
+
+    @keyframes auraSpinCw {
+      from { transform: translate(-50%, -50%) scale(calc(var(--aura-scale) * 1.08)) rotate(0deg); }
+      to { transform: translate(-50%, -50%) scale(calc(var(--aura-scale) * 1.08)) rotate(360deg); }
+    }
+
+    @keyframes auraSpinCcw {
+      from { transform: translate(-50%, -50%) scale(calc(var(--aura-scale) * 0.95)) rotate(360deg); }
+      to { transform: translate(-50%, -50%) scale(calc(var(--aura-scale) * 0.95)) rotate(0deg); }
+    }
+
+    @keyframes auraBreathe {
+      0%, 100% { transform: translate(-50%, -50%) scale(var(--aura-scale)); opacity: 0.85; }
+      50% { transform: translate(-50%, -50%) scale(calc(var(--aura-scale) * 1.12)); opacity: 1; }
+    }
+
+    @keyframes auraWaveOut {
+      0% {
+        transform: translate(-50%, -50%) scale(calc(var(--aura-scale) * 0.7));
+        opacity: 0.8;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(calc(var(--aura-scale) * 1.45));
+        opacity: 0;
+      }
+    }
+
+    /* Aura-Stile / Farbpaletten */
+    /* FEUER */
+    .aura-style-fire .aura-glow {
+      background: radial-gradient(circle, rgba(255, 235, 120, 0.95) 0%, rgba(255, 120, 0, 0.75) 45%, rgba(230, 0, 50, 0.35) 75%, transparent 100%);
+      box-shadow: 0 0 50px rgba(255, 120, 0, 0.8), 0 0 90px rgba(255, 210, 0, 0.5);
+    }
+    .aura-style-fire .aura-rays {
+      background: conic-gradient(from 0deg, rgba(255, 190, 0, 0.8) 0deg, transparent 40deg, rgba(255, 70, 0, 0.85) 90deg, transparent 130deg, rgba(255, 230, 50, 0.9) 180deg, transparent 225deg, rgba(255, 40, 0, 0.85) 270deg, transparent 315deg, rgba(255, 190, 0, 0.8) 360deg);
+    }
+    .aura-style-fire .aura-ring {
+      border: 4px dashed rgba(255, 200, 0, 0.6);
+      box-shadow: 0 0 35px rgba(255, 90, 0, 0.7);
+    }
+    .aura-style-fire .aura-waves {
+      box-shadow: 0 0 40px 10px rgba(255, 100, 0, 0.65);
+    }
+
+    /* MAGIE */
+    .aura-style-magic .aura-glow {
+      background: radial-gradient(circle, rgba(180, 240, 255, 0.95) 0%, rgba(147, 51, 234, 0.75) 45%, rgba(236, 72, 153, 0.35) 75%, transparent 100%);
+      box-shadow: 0 0 50px rgba(147, 51, 234, 0.85), 0 0 90px rgba(56, 189, 248, 0.55);
+    }
+    .aura-style-magic .aura-rays {
+      background: conic-gradient(from 0deg, rgba(56, 189, 248, 0.8) 0deg, transparent 45deg, rgba(168, 85, 247, 0.85) 90deg, transparent 135deg, rgba(244, 114, 182, 0.85) 180deg, transparent 225deg, rgba(99, 102, 241, 0.85) 270deg, transparent 315deg, rgba(56, 189, 248, 0.8) 360deg);
+    }
+    .aura-style-magic .aura-ring {
+      border: 4px dashed rgba(168, 85, 247, 0.65);
+      box-shadow: 0 0 35px rgba(56, 189, 248, 0.7);
+    }
+    .aura-style-magic .aura-waves {
+      box-shadow: 0 0 40px 10px rgba(168, 85, 247, 0.65);
+    }
+
+    /* NATUR */
+    .aura-style-nature .aura-glow {
+      background: radial-gradient(circle, rgba(220, 255, 160, 0.95) 0%, rgba(16, 185, 129, 0.75) 45%, rgba(5, 150, 105, 0.35) 75%, transparent 100%);
+      box-shadow: 0 0 50px rgba(16, 185, 129, 0.85), 0 0 90px rgba(245, 158, 11, 0.45);
+    }
+    .aura-style-nature .aura-rays {
+      background: conic-gradient(from 0deg, rgba(52, 211, 153, 0.8) 0deg, transparent 45deg, rgba(245, 158, 11, 0.8) 90deg, transparent 135deg, rgba(16, 185, 129, 0.85) 180deg, transparent 225deg, rgba(132, 204, 22, 0.8) 270deg, transparent 315deg, rgba(52, 211, 153, 0.8) 360deg);
+    }
+    .aura-style-nature .aura-ring {
+      border: 4px dashed rgba(52, 211, 153, 0.65);
+      box-shadow: 0 0 35px rgba(16, 185, 129, 0.7);
+    }
+    .aura-style-nature .aura-waves {
+      box-shadow: 0 0 40px 10px rgba(16, 185, 129, 0.65);
+    }
+
+    /* Figur-Container */
+    .character {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      z-index: 2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.45));
+    }
+
+    .character svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Feedback-Animationen der Figur */
+    .anim-bounce {
+      animation: happyBounce 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+
+    .anim-shake {
+      animation: sadShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+
+    @keyframes happyBounce {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.35) translateY(-32px); }
+      55% { transform: scale(0.9) translateY(8px); }
+      75% { transform: scale(1.1) translateY(-6px); }
+      100% { transform: scale(1) translateY(0); }
+    }
+
+    @keyframes sadShake {
+      0%, 100% { transform: translateX(0) scale(1); }
+      20% { transform: translateX(-24px) rotate(-8deg) scale(0.92); }
+      40% { transform: translateX(22px) rotate(8deg) scale(0.92); }
+      60% { transform: translateX(-16px) rotate(-5deg); }
+      80% { transform: translateX(12px) rotate(5deg); }
+    }
+
+    /* ==========================================================================
+       Interaktive Items (Draggable) & Sperr-Verhalten
+       ========================================================================== */
+    .item-slot {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .item-halo {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 2px dashed rgba(255, 255, 255, 0.22);
+      pointer-events: none;
+      animation: rotateHalo 16s linear infinite;
+      transition: opacity 0.3s ease;
+    }
+
+    @keyframes rotateHalo {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .drag-item {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: grab;
+      touch-action: none;
+      z-index: 20;
+      transition: box-shadow 0.2s ease, opacity 0.3s ease;
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
+    }
+
+    .drag-item svg {
+      width: 85%;
+      height: 85%;
+      pointer-events: none;
+    }
+
+    .drag-item.dragging {
+      cursor: grabbing;
+      z-index: 100;
+      transform: scale(1.18);
+      filter: drop-shadow(0 20px 32px rgba(0, 0, 0, 0.55));
+    }
+
+    .drag-item.returning {
+      transition: transform 0.32s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* Sperr-Status Indikator an den Item-Slots */
+    .slot-lock-indicator {
+      position: absolute;
+      bottom: 0px;
+      right: 0px;
+      width: 30px;
+      height: 30px;
+      background: #f59e0b;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      border: 2px solid #131525;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.6);
+      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 25;
+    }
+
+    /* Wenn die App gesperrt ist */
+    .app-locked .slot-lock-indicator {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .app-locked .item-halo {
+      opacity: 0.4;
+      animation-play-state: paused;
+    }
+
+    .app-locked .drag-item {
+      cursor: not-allowed;
+    }
+
+    /* Schütteln bei Versuch, im gesperrten Zustand zu füttern */
+    .drag-item.lock-shake {
+      animation: lockShake 0.45s ease-out;
+    }
+
+    @keyframes lockShake {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      20% { transform: translate3d(-10px, 0, 0) rotate(-5deg); }
+      40% { transform: translate3d(10px, 0, 0) rotate(5deg); }
+      60% { transform: translate3d(-6px, 0, 0) rotate(-2deg); }
+      80% { transform: translate3d(6px, 0, 0) rotate(2deg); }
+    }
+
+    .item-label {
+      position: absolute;
+      bottom: -32px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      opacity: 0.8;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .lane-positive .item-label { color: #52e5a4; }
+    .lane-negative .item-label { color: #ff6b81; }
+
+    /* ==========================================================================
+       Fortschrittsleiste (10 Miniatur-Icons)
+       ========================================================================== */
+    footer {
+      width: 100%;
+      max-width: 980px;
+      padding: 12px 16px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      z-index: 30;
+    }
+
+    .progress-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 24px;
+      padding: 10px 14px;
+      gap: 6px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .progress-slot {
+      flex: 1;
+      aspect-ratio: 1 / 1;
+      max-width: 55px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
+      opacity: 0.28;
+      filter: grayscale(100%);
+      transform: scale(0.88);
+      padding: 4px;
+    }
+
+    .progress-slot svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .progress-slot.active {
+      opacity: 1;
+      filter: grayscale(0%);
+      transform: scale(1.08);
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.25) 0%, rgba(255, 255, 255, 0.05) 100%);
+      box-shadow: 0 4px 14px rgba(255, 209, 92, 0.4);
+    }
+
+    .progress-slot.just-activated {
+      animation: slotPop 0.4s ease-out;
+    }
+
+    @keyframes slotPop {
+      0% { transform: scale(0.7); }
+      50% { transform: scale(1.35) rotate(10deg); }
+      100% { transform: scale(1.08); }
+    }
+
+    /* ==========================================================================
+       Modale Fenster & Settings
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(5, 7, 18, 0.8);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 200;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #191c30;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 28px;
+      width: 92%;
+      max-width: 540px;
+      max-height: 86vh;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+      transform: scale(0.92);
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .modal-backdrop.open .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 14px;
+    }
+
+    .modal-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .close-modal-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #fff;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Status-Karte (Lock / Unlock & New Game) */
+    .control-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .status-badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .status-pill.unlocked {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .status-pill.locked {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .primary-btn {
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .primary-btn:active {
+      transform: scale(0.96);
+      background: #2563eb;
+    }
+
+    .action-btn-lock {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+    .action-btn-lock:active {
+      background: rgba(245, 158, 11, 0.35);
+    }
+
+    .action-btn-new-game {
+      background: rgba(99, 102, 241, 0.25);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+    .action-btn-new-game:active {
+      background: rgba(99, 102, 241, 0.4);
+    }
+
+    /* iOS Toggle Switch (Negative Item on/off) */
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 14px 18px;
+    }
+
+    .toggle-label-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toggle-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .toggle-subtitle {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 56px;
+      height: 32px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(255, 255, 255, 0.2);
+      transition: .3s;
+      border-radius: 34px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 24px;
+      width: 24px;
+      left: 4px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    input:checked + .slider {
+      background-color: #10b981;
+      border-color: #10b981;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    /* Skin-Grids */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .option-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid transparent;
+      border-radius: 18px;
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .option-btn .preview-icon {
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .option-btn .preview-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .option-btn.selected {
+      background: rgba(255, 209, 92, 0.16);
+      border-color: #ffd15c;
+      box-shadow: 0 0 16px rgba(255, 209, 92, 0.35);
+    }
+
+    /* ==========================================================================
+       PIN / Passcode Keypad Modal (Touch-optimiert für iPad)
+       ========================================================================== */
+    .pin-modal-card {
+      max-width: 360px;
+      text-align: center;
+      gap: 18px;
+    }
+
+    .pin-dots {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 10px 0;
+    }
+
+    .pin-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .pin-dot.filled {
+      background: #ffd15c;
+      border-color: #ffd15c;
+      box-shadow: 0 0 12px rgba(255, 209, 92, 0.6);
+      transform: scale(1.15);
+    }
+
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .num-key {
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 18px;
+      height: 56px;
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .num-key:active {
+      transform: scale(0.92);
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .num-key.action-key {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .pin-msg {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.65);
+      min-height: 20px;
+    }
+
+    .pin-msg.error {
+      color: #ff6b81;
+      animation: pinShake 0.4s ease;
+    }
+
+    @keyframes pinShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-12px); }
+      75% { transform: translateX(12px); }
+    }
+
+    /* Partikel-Effekt */
+    .particle {
+      position: absolute;
+      pointer-events: none;
+      border-radius: 50%;
+      z-index: 150;
+      animation: particleFly 0.75s ease-out forwards;
+    }
+
+    @keyframes particleFly {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Floating Toast Notification bei gesperrter Interaktion -->
+    <div class="toast-notification" id="toastNotification">
+      <span id="toastText">🔒 App ist gesperrt – Füttern deaktiviert</span>
+    </div>
+
+    <!-- Kopfbereich mit Zähler links und Lock-Status & Settings rechts -->
+    <header>
+      <div class="counter-badge" aria-label="Aktueller Zählerstand">
+        <span class="counter-value" id="counterValue">0</span>
+        <span class="counter-max">/ 10</span>
+      </div>
+
+      <div class="header-actions">
+        <!-- Schneller Lock/Unlock Button in der Leiste -->
+        <button class="lock-state-btn is-unlocked" id="headerLockBtn" aria-label="Sperrstatus ändern">
+          <span id="headerLockIcon">🔓</span>
+          <span id="headerLockText">Entsperrt</span>
+        </button>
+
+        <!-- Settings-Zahnrad in oberer rechter Ecke -->
+        <button class="settings-corner-btn" id="openSettingsBtn" aria-label="Einstellungen öffnen">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Spiel-Arena -->
+    <main class="arena" id="arenaMain">
+      <!-- Belohnungs-Item links -->
+      <div class="lane lane-positive" id="lanePositive">
+        <div class="item-slot" id="posSlot">
+          <div class="item-halo"></div>
+          <div class="drag-item" id="posItem" data-type="positive" role="button" aria-label="Belohnung ziehen">
+            <!-- Dynamisches SVG Icon -->
+          </div>
+          <div class="slot-lock-indicator">🔒</div>
+          <div class="item-label">+1 Belohnung</div>
+        </div>
+      </div>
+
+      <!-- Figur & Animiertes dynamisches Aura-System im Zentrum -->
+      <div class="character-stage" id="stage">
+        <div class="aura-system aura-style-fire" id="auraSystem">
+          <div class="aura-layer aura-waves"></div>
+          <div class="aura-layer aura-glow"></div>
+          <div class="aura-layer aura-rays"></div>
+          <div class="aura-layer aura-ring"></div>
+        </div>
+        <div class="character" id="mainCharacter">
+          <!-- Dynamisches SVG der Figur -->
+        </div>
+      </div>
+
+      <!-- Abzugs-Item rechts (kann via Settings abgeschaltet werden) -->
+      <div class="lane lane-negative" id="laneNegative">
+        <div class="item-slot" id="negSlot">
+          <div class="item-halo"></div>
+          <div class="drag-item" id="negItem" data-type="negative" role="button" aria-label="Abzug ziehen">
+            <!-- Dynamisches SVG Icon -->
+          </div>
+          <div class="slot-lock-indicator">🔒</div>
+          <div class="item-label">-1 Abzug</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Fortschrittsleiste -->
+    <footer>
+      <div class="progress-bar" id="progressBar" aria-label="Fortschritt 0 von 10">
+        <!-- 10 Slots generiert via JS -->
+      </div>
+    </footer>
+  </div>
+
+  <!-- Einstellungen / Settings Modal -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>⚙️ Einstellungen</span>
+        </div>
+        <button class="close-modal-btn" id="closeSettingsBtn" aria-label="Schließen">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- 1. Session Status & Lock / Unlock / New Game Steuerung -->
+      <div class="control-card">
+        <div class="status-badge-row">
+          <div>
+            <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">App-Sperrstatus:</div>
+            <span class="status-pill unlocked" id="statusPill">🔓 Entsperrt (Füttern aktiv)</span>
+          </div>
+          <button class="primary-btn action-btn-lock" id="toggleLockBtn">
+            🔒 Jetzt sperren
+          </button>
+        </div>
+
+        <div class="btn-row">
+          <button class="primary-btn action-btn-new-game" id="newGameBtn">
+            ⭐ Neues Spiel
+          </button>
+          <button class="primary-btn" id="changePasscodeBtn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18);">
+            🔑 Passcode ändern
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Negatives Item On/Off (Checkbox / Switch) -->
+      <div class="toggle-row">
+        <div class="toggle-label-wrap">
+          <span class="toggle-title">Negatives Item (-1)</span>
+          <span class="toggle-subtitle">Abzugs-Item aktivieren oder ausblenden</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="negativeToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- 3. Skins -->
+      <!-- Figur-Auswahl -->
+      <div>
+        <div class="section-title">Hauptfigur Skin</div>
+        <div class="options-grid" id="charOptions">
+          <button class="option-btn" data-key="smiley">
+            <div class="preview-icon" id="preview-char-smiley"></div>
+            <span>Smiley</span>
+          </button>
+          <button class="option-btn" data-key="robot">
+            <div class="preview-icon" id="preview-char-robot"></div>
+            <span>Roboter</span>
+          </button>
+          <button class="option-btn" data-key="cat">
+            <div class="preview-icon" id="preview-char-cat"></div>
+            <span>Katze</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Belohnungs-Item Auswahl -->
+      <div>
+        <div class="section-title">Belohnungs-Item Skin (+)</div>
+        <div class="options-grid" style="grid-template-columns: repeat(2, 1fr);" id="posOptions">
+          <button class="option-btn" data-key="star">
+            <div class="preview-icon" id="preview-pos-star"></div>
+            <span>Stern</span>
+          </button>
+          <button class="option-btn" data-key="coin">
+            <div class="preview-icon" id="preview-pos-coin"></div>
+            <span>Münze</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Abzugs-Item Auswahl (nur aktiv wenn Negativ-Item eingeschaltet) -->
+      <div id="negOptionsSection">
+        <div class="section-title">Abzugs-Item Skin (-)</div>
+        <div class="options-grid" style="grid-template-columns: repeat(2, 1fr);" id="negOptions">
+          <button class="option-btn" data-key="cloud">
+            <div class="preview-icon" id="preview-neg-cloud"></div>
+            <span>Gewitter</span>
+          </button>
+          <button class="option-btn" data-key="barrier">
+            <div class="preview-icon" id="preview-neg-barrier"></div>
+            <span>Verbot</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Aura Auswahl -->
+      <div>
+        <div class="section-title">Aura-Stil & Animation</div>
+        <div class="options-grid" id="auraOptions">
+          <button class="option-btn" data-key="aura-style-fire">
+            <div class="preview-icon">🔥</div>
+            <span>Feuer</span>
+          </button>
+          <button class="option-btn" data-key="aura-style-magic">
+            <div class="preview-icon">✨</div>
+            <span>Magie</span>
+          </button>
+          <button class="option-btn" data-key="aura-style-nature">
+            <div class="preview-icon">🍃</div>
+            <span>Natur</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Touch Keypad Modal für PIN / Passcode (Entsperren / Neues Spiel / Ändern) -->
+  <div class="modal-backdrop" id="pinModal">
+    <div class="modal-card pin-modal-card">
+      <div class="modal-title" id="pinModalTitle" style="justify-content: center;">
+        🔒 Session entsperren
+      </div>
+      <div class="pin-msg" id="pinModalMsg">Gib deinen 4-stelligen Session-Passcode ein:</div>
+
+      <div class="pin-dots" id="pinDots">
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+      </div>
+
+      <div class="keypad-grid" id="keypadGrid">
+        <button class="num-key" data-val="1">1</button>
+        <button class="num-key" data-val="2">2</button>
+        <button class="num-key" data-val="3">3</button>
+        <button class="num-key" data-val="4">4</button>
+        <button class="num-key" data-val="5">5</button>
+        <button class="num-key" data-val="6">6</button>
+        <button class="num-key" data-val="7">7</button>
+        <button class="num-key" data-val="8">8</button>
+        <button class="num-key" data-val="9">9</button>
+        <button class="num-key action-key" id="pinCancelBtn">Abbrechen</button>
+        <button class="num-key" data-val="0">0</button>
+        <button class="num-key action-key" id="pinDeleteBtn">⌫ Löschen</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       SVG Assets (Vektor-Ressourcen für maximale Schärfe & minimalen Speicher)
+       ========================================================================== */
+    const SVG_ASSETS = {
+      characters: {
+        smiley: `
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <radialGradient id="gradSmiley" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#fff176"/>
+                <stop offset="60%" stop-color="#fbc02d"/>
+                <stop offset="100%" stop-color="#f57f17"/>
+              </radialGradient>
+            </defs>
+            <circle cx="50" cy="50" r="46" fill="url(#gradSmiley)" stroke="#e65100" stroke-width="2"/>
+            <ellipse cx="34" cy="38" rx="5.5" ry="8" fill="#3e2723"/>
+            <ellipse cx="66" cy="38" rx="5.5" ry="8" fill="#3e2723"/>
+            <circle cx="36" cy="35" r="2.2" fill="#ffffff"/>
+            <circle cx="68" cy="35" r="2.2" fill="#ffffff"/>
+            <ellipse cx="26" cy="48" rx="6" ry="4" fill="#ff7043" opacity="0.45"/>
+            <ellipse cx="74" cy="48" rx="6" ry="4" fill="#ff7043" opacity="0.45"/>
+            <path d="M 28 54 Q 50 82 72 54" fill="#d84315" stroke="#3e2723" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 33 55 Q 50 68 67 55 Z" fill="#ffffff"/>
+          </svg>`,
+        robot: `
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="gradBot" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#90caf9"/>
+                <stop offset="50%" stop-color="#42a5f5"/>
+                <stop offset="100%" stop-color="#1976d2"/>
+              </linearGradient>
+            </defs>
+            <line x1="50" y1="12" x2="50" y2="24" stroke="#e0e0e0" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="50" cy="10" r="6" fill="#ffeb3b" stroke="#f57f17" stroke-width="2"/>
+            <rect x="14" y="40" width="8" height="20" rx="3" fill="#ff7043"/>
+            <rect x="78" y="40" width="8" height="20" rx="3" fill="#ff7043"/>
+            <rect x="20" y="24" width="60" height="56" rx="14" fill="url(#gradBot)" stroke="#0d47a1" stroke-width="3"/>
+            <rect x="28" y="36" width="44" height="22" rx="7" fill="#212121"/>
+            <circle cx="39" cy="47" r="5" fill="#00e676"/>
+            <circle cx="61" cy="47" r="5" fill="#00e676"/>
+            <circle cx="40.5" cy="45.5" r="1.5" fill="#ffffff"/>
+            <circle cx="62.5" cy="45.5" r="1.5" fill="#ffffff"/>
+            <line x1="34" y1="68" x2="66" y2="68" stroke="#ffffff" stroke-width="3" stroke-dasharray="4,3" stroke-linecap="round"/>
+          </svg>`,
+        cat: `
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="gradCat" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffb74d"/>
+                <stop offset="70%" stop-color="#fb8c00"/>
+                <stop offset="100%" stop-color="#e65100"/>
+              </linearGradient>
+            </defs>
+            <polygon points="22,40 16,14 44,28" fill="#fb8c00" stroke="#bf360c" stroke-width="2"/>
+            <polygon points="25,35 22,20 38,29" fill="#ff80ab"/>
+            <polygon points="78,40 84,14 56,28" fill="#fb8c00" stroke="#bf360c" stroke-width="2"/>
+            <polygon points="75,35 78,20 62,29" fill="#ff80ab"/>
+            <ellipse cx="50" cy="54" rx="38" ry="34" fill="url(#gradCat)" stroke="#bf360c" stroke-width="2.5"/>
+            <ellipse cx="36" cy="48" rx="6" ry="8" fill="#2e7d32"/>
+            <ellipse cx="64" cy="48" rx="6" ry="8" fill="#2e7d32"/>
+            <ellipse cx="36" cy="48" rx="2.5" ry="6.5" fill="#1b5e20"/>
+            <ellipse cx="64" cy="48" rx="2.5" ry="6.5" fill="#1b5e20"/>
+            <circle cx="38" cy="45" r="2" fill="#ffffff"/>
+            <circle cx="66" cy="45" r="2" fill="#ffffff"/>
+            <polygon points="47,58 53,58 50,62" fill="#d81b60"/>
+            <path d="M 44 63 Q 50 67 50 62 Q 50 67 56 63" fill="none" stroke="#3e2723" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="14" y1="56" x2="30" y2="58" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
+            <line x1="14" y1="64" x2="30" y2="62" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
+            <line x1="86" y1="56" x2="70" y2="58" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
+            <line x1="86" y1="64" x2="70" y2="62" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
+          </svg>`
+      },
+      positive: {
+        star: `
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="gradStar" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fff9c4"/>
+                <stop offset="40%" stop-color="#fdd835"/>
+                <stop offset="100%" stop-color="#f57f17"/>
+              </linearGradient>
+            </defs>
+            <polygon points="50,8 62,36 94,38 68,58 76,90 50,72 24,90 32,58 6,38 38,36"
+                     fill="url(#gradStar)" stroke="#f57f17" stroke-width="3" stroke-linejoin="round"/>
+            <circle cx="44" cy="42" r="3" fill="#ffffff" opacity="0.8"/>
+          </svg>`,
+        coin: `
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="gradCoin" x1="15%" y1="15%" x2="85%" y2="85%">
+                <stop offset="0%" stop-color="#fff59d"/>
+                <stop offset="40%" stop-color="#ffca28"/>
+                <stop offset="100%" stop-color="#ff8f00"/>
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="44" fill="url(#gradCoin)" stroke="#e65100" stroke-width="3"/>
+            <circle cx="50" cy="50" r="36" fill="none" stroke="#fff9c4" stroke-width="3" stroke-dasharray="6,4"/>
+            <text x="50" y="64" font-size="44" font-weight="900" fill="#e65100" text-anchor="middle" font-family="sans-serif">+</text>
+          </svg>`
+      },
+      negative: {
+        cloud: `
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="gradCloud" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#78909c"/>
+                <stop offset="100%" stop-color="#37474f"/>
+              </linearGradient>
+              <linearGradient id="gradVolt" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffee58"/>
+                <stop offset="100%" stop-color="#f57f17"/>
+              </linearGradient>
+            </defs>
+            <path d="M 30 54 A 16 16 0 0 1 54 36 A 20 20 0 0 1 82 46 A 14 14 0 0 1 76 68 L 26 68 A 12 12 0 0 1 30 54 Z"
+                  fill="url(#gradCloud)" stroke="#263238" stroke-width="2.5"/>
+            <polygon points="52,50 38,70 50,70 42,92 66,64 54,64"
+                     fill="url(#gradVolt)" stroke="#e65100" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>`,
+        barrier: `
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="gradStop" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ef5350"/>
+                <stop offset="100%" stop-color="#b71c1c"/>
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="44" fill="url(#gradStop)" stroke="#7f0000" stroke-width="3"/>
+            <circle cx="50" cy="50" r="38" fill="none" stroke="#ffffff" stroke-width="3"/>
+            <line x1="26" y1="50" x2="74" y2="50" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+          </svg>`
+      }
+    };
+
+    /* ==========================================================================
+       Sound Synthesizer (Web Audio API - Null externe Audio-Dateien)
+       ========================================================================== */
+    class SoundEffects {
+      constructor() {
+        this.ctx = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playPositive() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.18);
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      }
+
+      playNegative() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(130, now + 0.22);
+
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.26);
+      }
+
+      playLocked() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.setValueAtTime(140, now + 0.08);
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      }
+
+      playVictory() {
+        this.init();
+        if (!this.ctx) return;
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, idx) => {
+          const now = this.ctx.currentTime + idx * 0.08;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        });
+      }
+    }
+
+    const sound = new SoundEffects();
+
+    /* ==========================================================================
+       App State & Persistenz (localStorage)
+       ========================================================================== */
+    const STORAGE_KEY = 'kids_reward_app_state_v3';
+
+    const state = {
+      count: 0,
+      characterSkin: 'smiley',
+      positiveSkin: 'star',
+      negativeSkin: 'cloud',
+      auraSkin: 'aura-style-fire',
+      negativeItemActive: true,
+      isLocked: false,
+      passcode: '1234'
+    };
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (typeof parsed.count === 'number') state.count = Math.max(0, Math.min(10, parsed.count));
+          if (parsed.characterSkin && SVG_ASSETS.characters[parsed.characterSkin]) state.characterSkin = parsed.characterSkin;
+          if (parsed.positiveSkin && SVG_ASSETS.positive[parsed.positiveSkin]) state.positiveSkin = parsed.positiveSkin;
+          if (parsed.negativeSkin && SVG_ASSETS.negative[parsed.negativeSkin]) state.negativeSkin = parsed.negativeSkin;
+          if (parsed.auraSkin) state.auraSkin = parsed.auraSkin;
+          if (typeof parsed.negativeItemActive === 'boolean') state.negativeItemActive = parsed.negativeItemActive;
+          if (typeof parsed.isLocked === 'boolean') state.isLocked = parsed.isLocked;
+          if (typeof parsed.passcode === 'string' && parsed.passcode.length === 4) state.passcode = parsed.passcode;
+        }
+      } catch (e) {
+        console.warn('LocalStorage load error:', e);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn('LocalStorage save failed:', e);
+      }
+    }
+
+    /* ==========================================================================
+       DOM Elemente
+       ========================================================================== */
+    const appEl = document.getElementById('app');
+    const counterValueEl = document.getElementById('counterValue');
+    const auraSystemEl = document.getElementById('auraSystem');
+    const characterEl = document.getElementById('mainCharacter');
+    const posItemEl = document.getElementById('posItem');
+    const negItemEl = document.getElementById('negItem');
+    const laneNegativeEl = document.getElementById('laneNegative');
+    const negOptionsSectionEl = document.getElementById('negOptionsSection');
+    const progressBarEl = document.getElementById('progressBar');
+    
+    // Header & Lock Steuerung
+    const headerLockBtn = document.getElementById('headerLockBtn');
+    const headerLockIcon = document.getElementById('headerLockIcon');
+    const headerLockText = document.getElementById('headerLockText');
+    const openSettingsBtn = document.getElementById('openSettingsBtn');
+    const toastNotification = document.getElementById('toastNotification');
+    const toastText = document.getElementById('toastText');
+
+    // Settings Modal
+    const settingsModal = document.getElementById('settingsModal');
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    const statusPill = document.getElementById('statusPill');
+    const toggleLockBtn = document.getElementById('toggleLockBtn');
+    const newGameBtn = document.getElementById('newGameBtn');
+    const changePasscodeBtn = document.getElementById('changePasscodeBtn');
+    const negativeToggle = document.getElementById('negativeToggle');
+
+    // PIN Keypad Modal
+    const pinModal = document.getElementById('pinModal');
+    const pinModalTitle = document.getElementById('pinModalTitle');
+    const pinModalMsg = document.getElementById('pinModalMsg');
+    const pinDotsEl = document.getElementById('pinDots');
+    const keypadGridEl = document.getElementById('keypadGrid');
+    const pinCancelBtn = document.getElementById('pinCancelBtn');
+    const pinDeleteBtn = document.getElementById('pinDeleteBtn');
+
+    let toastTimer = null;
+    function showToast(msg) {
+      if (toastTimer) clearTimeout(toastTimer);
+      toastText.textContent = msg;
+      toastNotification.classList.add('show');
+      toastTimer = setTimeout(() => {
+        toastNotification.classList.remove('show');
+      }, 2200);
+    }
+
+    /* ==========================================================================
+       Aura-Animation & Zähler-Updates
+       ========================================================================== */
+    function updateAuraAnimation(triggerBurst = false) {
+      auraSystemEl.className = `aura-system ${state.auraSkin}`;
+
+      if (state.count === 0) {
+        auraSystemEl.classList.remove('active');
+        auraSystemEl.style.setProperty('--aura-intensity', '0');
+        auraSystemEl.style.setProperty('--aura-scale', '0.6');
+      } else {
+        auraSystemEl.classList.add('active');
+        const ratio = state.count / 10;
+        
+        auraSystemEl.style.setProperty('--aura-intensity', ratio.toFixed(2));
+        
+        // Skaliert von 0.72 (Z=1) bis 1.55 (Z=10)
+        const scale = 0.72 + ratio * 0.83;
+        auraSystemEl.style.setProperty('--aura-scale', scale.toFixed(2));
+
+        // Rotationsdauer wird mit höherem Z schneller (von 9s auf 2.2s)
+        const spinDuration = 9.0 - ratio * 6.8;
+        auraSystemEl.style.setProperty('--aura-spin-duration', `${spinDuration.toFixed(2)}s`);
+
+        // Pulsieren wird energiegeladener (von 2.6s auf 1.1s)
+        const pulseDuration = 2.6 - ratio * 1.5;
+        auraSystemEl.style.setProperty('--aura-pulse-duration', `${pulseDuration.toFixed(2)}s`);
+      }
+
+      if (triggerBurst && state.count > 0) {
+        auraSystemEl.classList.remove('flare-pulse');
+        void auraSystemEl.offsetWidth;
+        auraSystemEl.classList.add('flare-pulse');
+      }
+    }
+
+    function updateCounterDisplay(prevCount, isPositiveEvent = false) {
+      counterValueEl.textContent = state.count;
+
+      updateAuraAnimation(isPositiveEvent);
+
+      const slots = progressBarEl.children;
+      for (let i = 0; i < 10; i++) {
+        if (i < state.count) {
+          if (!slots[i].classList.contains('active')) {
+            slots[i].classList.add('active');
+            if (prevCount !== undefined && i >= prevCount) {
+              slots[i].classList.add('just-activated');
+              setTimeout(() => slots[i].classList.remove('just-activated'), 450);
+            }
+          }
+        } else {
+          slots[i].classList.remove('active');
+        }
+      }
+
+      saveState();
+    }
+
+    function renderCharactersAndItems() {
+      characterEl.innerHTML = SVG_ASSETS.characters[state.characterSkin];
+      posItemEl.innerHTML = SVG_ASSETS.positive[state.positiveSkin];
+      negItemEl.innerHTML = SVG_ASSETS.negative[state.negativeSkin];
+
+      progressBarEl.innerHTML = '';
+      for (let i = 0; i < 10; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'progress-slot' + (i < state.count ? ' active' : '');
+        slot.innerHTML = SVG_ASSETS.characters[state.characterSkin];
+        progressBarEl.appendChild(slot);
+      }
+
+      document.getElementById('preview-char-smiley').innerHTML = SVG_ASSETS.characters.smiley;
+      document.getElementById('preview-char-robot').innerHTML = SVG_ASSETS.characters.robot;
+      document.getElementById('preview-char-cat').innerHTML = SVG_ASSETS.characters.cat;
+
+      document.getElementById('preview-pos-star').innerHTML = SVG_ASSETS.positive.star;
+      document.getElementById('preview-pos-coin').innerHTML = SVG_ASSETS.positive.coin;
+
+      document.getElementById('preview-neg-cloud').innerHTML = SVG_ASSETS.negative.cloud;
+      document.getElementById('preview-neg-barrier').innerHTML = SVG_ASSETS.negative.barrier;
+
+      applyNegativeItemVisibility();
+      applyLockStateUI();
+      updateModalActiveStates();
+      updateCounterDisplay();
+    }
+
+    function applyNegativeItemVisibility() {
+      negativeToggle.checked = state.negativeItemActive;
+      if (state.negativeItemActive) {
+        laneNegativeEl.classList.remove('hidden');
+        negOptionsSectionEl.style.display = 'block';
+      } else {
+        laneNegativeEl.classList.add('hidden');
+        negOptionsSectionEl.style.display = 'none';
+      }
+    }
+
+    /* Sperrstatus für die GESAMTE App verwalten */
+    function applyLockStateUI() {
+      if (state.isLocked) {
+        // App-Klasse für globale Sperre
+        appEl.classList.add('app-locked');
+
+        // Header-Button
+        headerLockBtn.className = 'lock-state-btn is-locked';
+        headerLockIcon.textContent = '🔒';
+        headerLockText.textContent = 'Gesperrt';
+
+        // Settings Modal
+        statusPill.className = 'status-pill locked';
+        statusPill.textContent = '🔒 Gesperrt (Füttern blockiert)';
+        toggleLockBtn.innerHTML = '🔓 Jetzt entsperren';
+      } else {
+        // App-Klasse entfernen
+        appEl.classList.remove('app-locked');
+
+        // Header-Button
+        headerLockBtn.className = 'lock-state-btn is-unlocked';
+        headerLockIcon.textContent = '🔓';
+        headerLockText.textContent = 'Entsperrt';
+
+        // Settings Modal
+        statusPill.className = 'status-pill unlocked';
+        statusPill.textContent = '🔓 Entsperrt (Füttern aktiv)';
+        toggleLockBtn.innerHTML = '🔒 Jetzt sperren';
+      }
+    }
+
+    function updateModalActiveStates() {
+      syncGridSelection('charOptions', state.characterSkin);
+      syncGridSelection('posOptions', state.positiveSkin);
+      syncGridSelection('negOptions', state.negativeSkin);
+      syncGridSelection('auraOptions', state.auraSkin);
+    }
+
+    function syncGridSelection(containerId, activeVal) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      Array.from(container.children).forEach(btn => {
+        if (btn.getAttribute('data-key') === activeVal) {
+          btn.classList.add('selected');
+        } else {
+          btn.classList.remove('selected');
+        }
+      });
+    }
+
+    /* ==========================================================================
+       Partikeleffekt (Konfetti bei Belohnung)
+       ========================================================================== */
+    function triggerParticles(x, y) {
+      const colors = ['#ffd15c', '#ff6b81', '#52e5a4', '#a78bfa', '#38bdf8', '#ffffff'];
+      for (let i = 0; i < 18; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        const size = Math.floor(Math.random() * 9 + 6);
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * 120 + 40;
+        const tx = Math.cos(angle) * dist + 'px';
+        const ty = Math.sin(angle) * dist + 'px';
+        particle.style.setProperty('--tx', tx);
+        particle.style.setProperty('--ty', ty);
+
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 750);
+      }
+    }
+
+    /* ==========================================================================
+       Spiel-Aktionen (+1 / -1)
+       ========================================================================== */
+    function applyReward() {
+      const prev = state.count;
+      if (state.count < 10) {
+        state.count = Math.min(10, state.count + 1);
+        if (state.count === 10) {
+          sound.playVictory();
+        } else {
+          sound.playPositive();
+        }
+      } else {
+        sound.playPositive();
+      }
+
+      characterEl.classList.remove('anim-bounce', 'anim-shake');
+      void characterEl.offsetWidth;
+      characterEl.classList.add('anim-bounce');
+
+      const rect = characterEl.getBoundingClientRect();
+      triggerParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+      updateCounterDisplay(prev, true);
+    }
+
+    function applyPenalty() {
+      if (!state.negativeItemActive) return;
+      const prev = state.count;
+      if (state.count > 0) {
+        state.count = Math.max(0, state.count - 1);
+      }
+      sound.playNegative();
+
+      characterEl.classList.remove('anim-bounce', 'anim-shake');
+      void characterEl.offsetWidth;
+      characterEl.classList.add('anim-shake');
+
+      updateCounterDisplay(prev, false);
+    }
+
+    /* ==========================================================================
+       Touch Drag-and-Drop (iPad & Safari optimiert)
+       Unterbindet jegliches Füttern bei gesperrter App!
+       ========================================================================== */
+    function setupDragAndDrop(itemEl) {
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+      let currentX = 0;
+      let currentY = 0;
+
+      function onStart(e) {
+        e.preventDefault();
+        sound.init();
+
+        // WICHTIG: Ist die App gelockt, kann die Figur NICHT gefüttert werden!
+        if (state.isLocked) {
+          itemEl.classList.remove('lock-shake');
+          void itemEl.offsetWidth; // Reflow erzwingen
+          itemEl.classList.add('lock-shake');
+          sound.playLocked();
+          showToast('🔒 App ist gesperrt – Füttern deaktiviert! Oben zum Entsperren tippen.');
+          return;
+        }
+
+        const point = e.touches ? e.touches[0] : e;
+        isDragging = true;
+        startX = point.clientX;
+        startY = point.clientY;
+        currentX = 0;
+        currentY = 0;
+
+        itemEl.classList.remove('returning');
+        itemEl.classList.add('dragging');
+        itemEl.style.transform = `translate3d(0px, 0px, 0) scale(1.18)`;
+
+        window.addEventListener('touchmove', onMove, { passive: false });
+        window.addEventListener('touchend', onEnd);
+        window.addEventListener('touchcancel', onEnd);
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onEnd);
+      }
+
+      function onMove(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+
+        const point = e.touches ? e.touches[0] : e;
+        currentX = point.clientX - startX;
+        currentY = point.clientY - startY;
+
+        itemEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(1.18)`;
+      }
+
+      function onEnd(e) {
+        if (!isDragging) return;
+        isDragging = false;
+
+        window.removeEventListener('touchmove', onMove);
+        window.removeEventListener('touchend', onEnd);
+        window.removeEventListener('touchcancel', onEnd);
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onEnd);
+
+        itemEl.classList.remove('dragging');
+
+        // Kollisionsabfrage mit der Hauptfigur
+        const itemRect = itemEl.getBoundingClientRect();
+        const charRect = characterEl.getBoundingClientRect();
+
+        const itemCenter = {
+          x: itemRect.left + itemRect.width / 2,
+          y: itemRect.top + itemRect.height / 2
+        };
+
+        const charCenter = {
+          x: charRect.left + charRect.width / 2,
+          y: charRect.top + charRect.height / 2
+        };
+
+        const dist = Math.hypot(itemCenter.x - charCenter.x, itemCenter.y - charCenter.y);
+        const hitRadius = (charRect.width / 2) + (itemRect.width / 3.5);
+
+        if (dist <= hitRadius && !state.isLocked) {
+          const type = itemEl.getAttribute('data-type');
+          if (type === 'positive') {
+            applyReward();
+          } else if (type === 'negative') {
+            applyPenalty();
+          }
+        }
+
+        itemEl.classList.add('returning');
+        itemEl.style.transform = `translate3d(0px, 0px, 0) scale(1)`;
+
+        setTimeout(() => {
+          itemEl.classList.remove('returning');
+          itemEl.style.transform = '';
+        }, 340);
+      }
+
+      itemEl.addEventListener('touchstart', onStart, { passive: false });
+      itemEl.addEventListener('mousedown', onStart);
+    }
+
+    setupDragAndDrop(posItemEl);
+    setupDragAndDrop(negItemEl);
+
+    /* ==========================================================================
+       PIN Keypad & Passcode Management (Lock / Unlock / New Game)
+       ========================================================================== */
+    let pinInputBuffer = '';
+    let pinCurrentMode = 'unlock'; // 'unlock' | 'newGame' | 'change'
+    let onPinSuccessCallback = null;
+
+    function openPinModal(mode, title, msg, onSuccess) {
+      sound.init();
+      pinCurrentMode = mode;
+      pinInputBuffer = '';
+      onPinSuccessCallback = onSuccess;
+      
+      pinModalTitle.textContent = title;
+      pinModalMsg.textContent = msg;
+      pinModalMsg.classList.remove('error');
+      
+      updatePinDots();
+      pinModal.classList.add('open');
+    }
+
+    function closePinModal() {
+      pinModal.classList.remove('open');
+      pinInputBuffer = '';
+      onPinSuccessCallback = null;
+    }
+
+    function updatePinDots() {
+      const dots = pinDotsEl.children;
+      for (let i = 0; i < 4; i++) {
+        if (i < pinInputBuffer.length) {
+          dots[i].classList.add('filled');
+        } else {
+          dots[i].classList.remove('filled');
+        }
+      }
+    }
+
+    keypadGridEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.num-key');
+      if (!btn) return;
+      
+      const val = btn.getAttribute('data-val');
+      if (val !== null && pinInputBuffer.length < 4) {
+        pinInputBuffer += val;
+        updatePinDots();
+
+        if (pinInputBuffer.length === 4) {
+          setTimeout(processPinEntered, 150);
+        }
+      }
+    });
+
+    pinDeleteBtn.addEventListener('click', () => {
+      if (pinInputBuffer.length > 0) {
+        pinInputBuffer = pinInputBuffer.slice(0, -1);
+        updatePinDots();
+        pinModalMsg.classList.remove('error');
+      }
+    });
+
+    pinCancelBtn.addEventListener('click', closePinModal);
+
+    function processPinEntered() {
+      if (pinCurrentMode === 'unlock') {
+        if (pinInputBuffer === state.passcode) {
+          state.isLocked = false;
+          saveState();
+          applyLockStateUI();
+          closePinModal();
+          showToast('🔓 App erfolgreich entsperrt! Füttern ist jetzt aktiv.');
+          sound.playPositive();
+          if (onPinSuccessCallback) {
+            onPinSuccessCallback();
+          }
+        } else {
+          showPinError('Falscher Passcode!');
+        }
+      } else if (pinCurrentMode === 'newGame') {
+        state.passcode = pinInputBuffer;
+        state.count = 0;
+        state.isLocked = false; // Neues Spiel startet entsperrt
+        saveState();
+        applyLockStateUI();
+        updateCounterDisplay();
+        closePinModal();
+        settingsModal.classList.remove('open');
+        showToast('⭐ Neues Spiel gestartet! (Entsperrt)');
+        sound.playVictory();
+      } else if (pinCurrentMode === 'change') {
+        state.passcode = pinInputBuffer;
+        saveState();
+        closePinModal();
+        showToast('🔑 Neuer Passcode gespeichert!');
+      }
+    }
+
+    function showPinError(msg) {
+      pinModalMsg.textContent = msg;
+      pinModalMsg.classList.add('error');
+      pinInputBuffer = '';
+      updatePinDots();
+      sound.playNegative();
+    }
+
+    /* ==========================================================================
+       Lock / Unlock & Settings Event Listener
+       ========================================================================== */
+    // Direktes Umschalten über den Header Lock Button
+    headerLockBtn.addEventListener('click', () => {
+      sound.init();
+      if (state.isLocked) {
+        // App ist gesperrt -> Passcode abfragen zum Entsperren
+        openPinModal('unlock', '🔒 App entsperren', 'Gib deinen 4-stelligen Session-Passcode ein:', null);
+      } else {
+        // App ist entsperrt -> Ein-Klick-Sperre für Eltern
+        state.isLocked = true;
+        saveState();
+        applyLockStateUI();
+        showToast('🔒 App gesperrt! Figur kann nicht mehr gefüttert werden.');
+        sound.playLocked();
+      }
+    });
+
+    // Öffnen der Einstellungen über das Zahnrad
+    openSettingsBtn.addEventListener('click', () => {
+      sound.init();
+      if (state.isLocked) {
+        // Bei gesperrter App muss zuerst entsperrt werden
+        openPinModal('unlock', '🔒 Einstellungen entsperren', 'Gib den Session-Passcode ein:', () => {
+          settingsModal.classList.add('open');
+        });
+      } else {
+        settingsModal.classList.add('open');
+      }
+    });
+
+    closeSettingsBtn.addEventListener('click', () => {
+      settingsModal.classList.remove('open');
+    });
+
+    settingsModal.addEventListener('click', (e) => {
+      if (e.target === settingsModal) {
+        settingsModal.classList.remove('open');
+      }
+    });
+
+    // Sperren / Entsperren Button im Modal
+    toggleLockBtn.addEventListener('click', () => {
+      if (state.isLocked) {
+        // Entsperren aus dem Modal
+        openPinModal('unlock', '🔒 App entsperren', 'Gib deinen 4-stelligen Session-Passcode ein:', null);
+      } else {
+        // Sperren
+        state.isLocked = true;
+        saveState();
+        applyLockStateUI();
+        settingsModal.classList.remove('open');
+        showToast('🔒 App gesperrt! Füttern blockiert.');
+        sound.playLocked();
+      }
+    });
+
+    // Neues Spiel
+    newGameBtn.addEventListener('click', () => {
+      openPinModal('newGame', '⭐ Neues Spiel starten', 'Wähle einen 4-stelligen Passcode für das neue Spiel:', null);
+    });
+
+    // Passcode ändern
+    changePasscodeBtn.addEventListener('click', () => {
+      openPinModal('change', '🔑 Passcode ändern', 'Gib deinen neuen 4-stelligen Passcode ein:', null);
+    });
+
+    // Negatives Item Toggle
+    negativeToggle.addEventListener('change', (e) => {
+      state.negativeItemActive = e.target.checked;
+      applyNegativeItemVisibility();
+      saveState();
+    });
+
+    // Skin-Auswahl
+    function attachSelectionHandlers(containerId, stateProp) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.addEventListener('click', (e) => {
+        const btn = e.target.closest('.option-btn');
+        if (!btn) return;
+        const key = btn.getAttribute('data-key');
+        if (key && state[stateProp] !== key) {
+          state[stateProp] = key;
+          renderCharactersAndItems();
+          saveState();
+        }
+      });
+    }
+
+    attachSelectionHandlers('charOptions', 'characterSkin');
+    attachSelectionHandlers('posOptions', 'positiveSkin');
+    attachSelectionHandlers('negOptions', 'negativeSkin');
+    attachSelectionHandlers('auraOptions', 'auraSkin');
+
+    // Safari Gesten unterbinden
+    document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
+    document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false });
+    document.addEventListener('gestureend', (e) => e.preventDefault(), { passive: false });
+
+    /* ==========================================================================
+       Initialisierung beim Start
+       ========================================================================== */
+    loadState();
+    renderCharactersAndItems();
+  </script>
+</body>
+</html>
