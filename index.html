@@ -386,18 +386,71 @@
 
     /* Aura-Stile / Farbpaletten */
     .aura-style-fire .aura-glow {
-      background: radial-gradient(circle, rgba(255, 235, 120, 0.95) 0%, rgba(255, 120, 0, 0.75) 45%, rgba(230, 0, 50, 0.35) 75%, transparent 100%);
-      box-shadow: 0 0 50px rgba(255, 120, 0, 0.8), 0 0 90px rgba(255, 210, 0, 0.5);
+      background: radial-gradient(ellipse at 50% 65%, 
+        rgba(255, 255, 230, 1) 0%, 
+        rgba(255, 220, 60, 0.95) 22%, 
+        rgba(255, 100, 0, 0.85) 52%, 
+        rgba(220, 20, 0, 0.45) 75%, 
+        transparent 100%
+      );
+      box-shadow: 0 0 60px rgba(255, 140, 0, 0.95), 0 -18px 80px rgba(255, 60, 0, 0.75), 0 0 120px rgba(255, 220, 0, 0.55);
+      border-radius: 50% 50% 45% 45% / 55% 55% 45% 45%;
+      animation: fireCoreFlicker 0.35s infinite alternate ease-in-out, auraBreathe var(--aura-pulse-duration) infinite ease-in-out;
     }
     .aura-style-fire .aura-rays {
-      background: conic-gradient(from 0deg, rgba(255, 190, 0, 0.8) 0deg, transparent 40deg, rgba(255, 70, 0, 0.85) 90deg, transparent 130deg, rgba(255, 230, 50, 0.9) 180deg, transparent 225deg, rgba(255, 40, 0, 0.85) 270deg, transparent 315deg, rgba(255, 190, 0, 0.8) 360deg);
+      width: 290px;
+      height: 310px;
+      border-radius: 42% 42% 48% 48% / 60% 60% 38% 38%;
+      background: conic-gradient(from 15deg, 
+        rgba(255, 245, 120, 0.95) 0deg,
+        rgba(255, 120, 0, 0.85) 45deg,
+        rgba(220, 25, 0, 0.7) 85deg,
+        transparent 115deg,
+        rgba(255, 210, 20, 0.9) 160deg,
+        rgba(255, 70, 0, 0.85) 205deg,
+        transparent 245deg,
+        rgba(255, 160, 0, 0.9) 295deg,
+        rgba(255, 245, 120, 0.95) 360deg
+      );
+      filter: blur(7px);
+      animation: auraSpinCw var(--aura-spin-duration) infinite linear, flameFlicker 0.4s infinite alternate ease-in-out;
     }
     .aura-style-fire .aura-ring {
-      border: 4px dashed rgba(255, 200, 0, 0.6);
-      box-shadow: 0 0 35px rgba(255, 90, 0, 0.7);
+      border: 3px solid rgba(255, 180, 0, 0.75);
+      border-top: 6px solid rgba(255, 250, 180, 0.95);
+      border-radius: 46% 54% 50% 50% / 58% 58% 42% 42%;
+      box-shadow: 0 -22px 50px rgba(255, 100, 0, 0.85), inset 0 0 35px rgba(255, 60, 0, 0.55);
+      animation: auraSpinCcw calc(var(--aura-spin-duration) * 1.1) infinite linear, flameLickRing 0.5s infinite alternate ease-in-out;
     }
     .aura-style-fire .aura-waves {
-      box-shadow: 0 0 40px 10px rgba(255, 100, 0, 0.65);
+      border-radius: 45% 45% 50% 50%;
+      box-shadow: 0 -32px 65px 18px rgba(255, 80, 0, 0.78), 0 0 50px 14px rgba(255, 210, 0, 0.55);
+      animation: fireWaveUp var(--aura-pulse-duration) infinite ease-out;
+    }
+
+    @keyframes flameFlicker {
+      0% { transform: translate(-50%, -50%) scale(calc(var(--aura-scale) * 1.05)) rotate(0deg) skewX(-1.5deg); }
+      50% { transform: translate(-50%, -52%) scale(calc(var(--aura-scale) * 1.13)) rotate(2.5deg) skewX(2deg); }
+      100% { transform: translate(-50%, -49%) scale(calc(var(--aura-scale) * 1.07)) rotate(-2deg) skewX(-1deg); }
+    }
+    @keyframes fireCoreFlicker {
+      0% { transform: translate(-50%, -50%) scale(var(--aura-scale)) scaleY(1); opacity: 0.9; }
+      50% { transform: translate(-50%, -53%) scale(calc(var(--aura-scale) * 1.06)) scaleY(1.08); opacity: 1; }
+      100% { transform: translate(-50%, -48%) scale(calc(var(--aura-scale) * 0.98)) scaleY(0.96); opacity: 0.85; }
+    }
+    @keyframes flameLickRing {
+      0% { transform: translate(-50%, -50%) scale(calc(var(--aura-scale) * 0.95)) rotate(0deg); }
+      100% { transform: translate(-50%, -54%) scale(calc(var(--aura-scale) * 1.03)) rotate(6deg); }
+    }
+    @keyframes fireWaveUp {
+      0% {
+        transform: translate(-50%, -46%) scale(calc(var(--aura-scale) * 0.75));
+        opacity: 0.85;
+      }
+      100% {
+        transform: translate(-50%, -64%) scale(calc(var(--aura-scale) * 1.4));
+        opacity: 0;
+      }
     }
 
     .aura-style-magic .aura-glow {
@@ -1101,23 +1154,26 @@
     }
 
     .quote-box {
-      min-height: 98px;
+      height: 104px;
+      min-height: 104px;
+      max-height: 104px;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 14px 18px;
+      padding: 10px 18px;
       background: rgba(255, 255, 255, 0.08);
       border: 1.5px solid rgba(255, 215, 0, 0.3);
       border-radius: 22px;
       position: relative;
       box-shadow: inset 0 0 20px rgba(255, 209, 92, 0.1);
+      overflow: hidden;
     }
 
     .quote-text {
-      font-size: 1.45rem;
+      font-size: clamp(1.15rem, 2.5vw, 1.4rem);
       font-weight: 800;
       color: #ffffff;
-      line-height: 1.45;
+      line-height: 1.35;
       text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
       transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
       white-space: pre-line;
@@ -1334,7 +1390,19 @@
         </div>
       </div>
 
-      <!-- 2. Negatives Item On/Off (Checkbox / Switch) -->
+      <!-- 2. Ziel ändern -->
+      <div class="control-card" style="margin-top: 2px;">
+        <div style="font-size: 0.9rem; font-weight: 700; color: #ffd15c; margin-bottom: 8px;">🎯 Ziel ändern</div>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="settingsGoalInput" class="modal-text-input" placeholder="z. B. Eis essen, 20 Min. iPad..." maxlength="40" style="flex: 1; font-size: 0.95rem; padding: 10px 14px;">
+          <button class="primary-btn" id="saveGoalBtn" style="padding: 10px 18px; font-size: 0.92rem; background: #3b82f6; white-space: nowrap;">
+            Speichern
+          </button>
+        </div>
+        <span style="font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-top: 6px; display: block;">Wird oben in der App angezeigt (leer lassen zum Ausblenden)</span>
+      </div>
+
+      <!-- 3. Negatives Item On/Off (Checkbox / Switch) -->
       <div class="toggle-row">
         <div class="toggle-label-wrap">
           <span class="toggle-title">Negatives Item (-1)</span>
@@ -1346,7 +1414,7 @@
         </label>
       </div>
 
-      <!-- 3. Skins -->
+      <!-- 4. Skins -->
       <div>
         <div class="section-title">Hauptfigur Skin</div>
         <div class="options-grid" id="charOptions">
@@ -1362,12 +1430,20 @@
             <div class="preview-icon" id="preview-char-cat"></div>
             <span>Katze</span>
           </button>
+          <button class="option-btn" data-key="dino">
+            <div class="preview-icon" id="preview-char-dino"></div>
+            <span>Dino</span>
+          </button>
+          <button class="option-btn" data-key="gorilla">
+            <div class="preview-icon" id="preview-char-gorilla"></div>
+            <span>Gorilla</span>
+          </button>
         </div>
       </div>
 
       <div>
         <div class="section-title">Belohnungs-Item Skin (+)</div>
-        <div class="options-grid" style="grid-template-columns: repeat(2, 1fr);" id="posOptions">
+        <div class="options-grid" style="grid-template-columns: repeat(3, 1fr);" id="posOptions">
           <button class="option-btn" data-key="star">
             <div class="preview-icon" id="preview-pos-star"></div>
             <span>Stern</span>
@@ -1376,12 +1452,16 @@
             <div class="preview-icon" id="preview-pos-coin"></div>
             <span>Münze</span>
           </button>
+          <button class="option-btn" data-key="icecream">
+            <div class="preview-icon" id="preview-pos-icecream"></div>
+            <span>Eiscreme</span>
+          </button>
         </div>
       </div>
 
       <div id="negOptionsSection">
         <div class="section-title">Abzugs-Item Skin (-)</div>
-        <div class="options-grid" style="grid-template-columns: repeat(2, 1fr);" id="negOptions">
+        <div class="options-grid" style="grid-template-columns: repeat(3, 1fr);" id="negOptions">
           <button class="option-btn" data-key="cloud">
             <div class="preview-icon" id="preview-neg-cloud"></div>
             <span>Gewitter</span>
@@ -1389,6 +1469,10 @@
           <button class="option-btn" data-key="barrier">
             <div class="preview-icon" id="preview-neg-barrier"></div>
             <span>Verbot</span>
+          </button>
+          <button class="option-btn" data-key="dynamite">
+            <div class="preview-icon" id="preview-neg-dynamite"></div>
+            <span>Dynamit</span>
           </button>
         </div>
       </div>
@@ -1499,24 +1583,165 @@
                 <stop offset="70%" stop-color="#fb8c00"/>
                 <stop offset="100%" stop-color="#e65100"/>
               </linearGradient>
+              <linearGradient id="gradShades" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#374151"/>
+                <stop offset="100%" stop-color="#111827"/>
+              </linearGradient>
             </defs>
+            <!-- Ohren -->
             <polygon points="22,40 16,14 44,28" fill="#fb8c00" stroke="#bf360c" stroke-width="2"/>
             <polygon points="25,35 22,20 38,29" fill="#ff80ab"/>
             <polygon points="78,40 84,14 56,28" fill="#fb8c00" stroke="#bf360c" stroke-width="2"/>
             <polygon points="75,35 78,20 62,29" fill="#ff80ab"/>
+            <!-- Kopf -->
             <ellipse cx="50" cy="54" rx="38" ry="34" fill="url(#gradCat)" stroke="#bf360c" stroke-width="2.5"/>
+            <!-- Augen (hinter Sonnenbrille) -->
             <ellipse cx="36" cy="48" rx="6" ry="8" fill="#2e7d32"/>
             <ellipse cx="64" cy="48" rx="6" ry="8" fill="#2e7d32"/>
-            <ellipse cx="36" cy="48" rx="2.5" ry="6.5" fill="#1b5e20"/>
-            <ellipse cx="64" cy="48" rx="2.5" ry="6.5" fill="#1b5e20"/>
-            <circle cx="38" cy="45" r="2" fill="#ffffff"/>
-            <circle cx="66" cy="45" r="2" fill="#ffffff"/>
-            <polygon points="47,58 53,58 50,62" fill="#d81b60"/>
-            <path d="M 44 63 Q 50 67 50 62 Q 50 67 56 63" fill="none" stroke="#3e2723" stroke-width="2.2" stroke-linecap="round"/>
-            <line x1="14" y1="56" x2="30" y2="58" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
-            <line x1="14" y1="64" x2="30" y2="62" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
-            <line x1="86" y1="56" x2="70" y2="58" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
-            <line x1="86" y1="64" x2="70" y2="62" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
+            <!-- Schnauze, Nase, Mund & Schnurrhaare -->
+            <polygon points="47,60 53,60 50,64" fill="#d81b60"/>
+            <path d="M 44 65 Q 50 69 50 64 Q 50 69 56 65" fill="none" stroke="#3e2723" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="14" y1="60" x2="30" y2="61" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
+            <line x1="14" y1="67" x2="30" y2="65" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
+            <line x1="86" y1="60" x2="70" y2="61" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
+            <line x1="86" y1="67" x2="70" y2="65" stroke="#3e2723" stroke-width="2" stroke-linecap="round"/>
+            <!-- Coole Sonnenbrille (Shades) -->
+            <!-- Bügel -->
+            <path d="M 18 44 L 26 44 M 74 44 L 82 44" stroke="#111827" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Steg -->
+            <path d="M 46 45 Q 50 43 54 45" stroke="#111827" stroke-width="3" stroke-linecap="round"/>
+            <!-- Linkes Glas -->
+            <path d="M 24 41 L 47 43 L 44 56 Q 34 57 26 53 Z" fill="url(#gradShades)" stroke="#111827" stroke-width="2" stroke-linejoin="round"/>
+            <polygon points="27,43 32,43 28,52 25,52" fill="#ffffff" opacity="0.45"/>
+            <polygon points="35,43 38,43 34,53 32,53" fill="#ffffff" opacity="0.3"/>
+            <!-- Rechtes Glas -->
+            <path d="M 53 43 L 76 41 L 74 53 Q 66 57 56 56 Z" fill="url(#gradShades)" stroke="#111827" stroke-width="2" stroke-linejoin="round"/>
+            <polygon points="56,43 61,43 57,52 54,52" fill="#ffffff" opacity="0.45"/>
+            <polygon points="64,43 67,43 63,53 61,53" fill="#ffffff" opacity="0.3"/>
+          </svg>`,
+        dino: `
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="gradDinoSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#86efac"/>
+                <stop offset="50%" stop-color="#22c55e"/>
+                <stop offset="100%" stop-color="#15803d"/>
+              </linearGradient>
+              <linearGradient id="gradTuxedo" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#27272a"/>
+                <stop offset="100%" stop-color="#09090b"/>
+              </linearGradient>
+            </defs>
+            <!-- Dino Schwanz -->
+            <path d="M 28 78 Q 12 84 10 70 Q 14 62 26 66 Z" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+            <!-- Rücken-Zacken (Dino Spikes) -->
+            <polygon points="24,48 20,42 26,44" fill="#fbbf24"/>
+            <polygon points="23,58 17,53 24,54" fill="#fbbf24"/>
+            <polygon points="22,68 15,64 23,65" fill="#fbbf24"/>
+            <!-- Dino Kopf & Körper -->
+            <path d="M 32 46 C 30 26 58 24 74 34 C 82 40 82 52 70 56 C 64 58 60 56 56 62 C 52 68 56 82 50 86 C 42 90 32 86 30 76 C 28 66 33 54 32 46 Z"
+                  fill="url(#gradDinoSkin)" stroke="#15803d" stroke-width="2.5"/>
+            <!-- Dino Wange & Auge -->
+            <ellipse cx="64" cy="40" rx="6" ry="7" fill="#ffffff" stroke="#15803d" stroke-width="1.5"/>
+            <circle cx="66" cy="40" r="3.5" fill="#0f172a"/>
+            <circle cx="67" cy="38.5" r="1.2" fill="#ffffff"/>
+            <circle cx="72" cy="48" r="4" fill="#f87171" opacity="0.6"/>
+            <!-- Dino Lächeln & Nüster -->
+            <circle cx="78" cy="40" r="1.5" fill="#15803d"/>
+            <path d="M 68 50 Q 75 52 79 46" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round"/>
+            <!-- Frack / Tuxedo Körper -->
+            <path d="M 34 60 C 38 56 56 56 58 63 L 56 84 C 48 88 38 86 33 78 Z" fill="url(#gradTuxedo)" stroke="#09090b" stroke-width="2"/>
+            <!-- Frack-Schöße (Tails hinten) -->
+            <path d="M 33 76 L 24 88 L 36 83 Z" fill="#18181b"/>
+            <!-- Weißes Hemd (Plastron) -->
+            <polygon points="44,58 52,58 49,76 43,76" fill="#ffffff"/>
+            <circle cx="47" cy="69" r="1" fill="#09090b"/>
+            <circle cx="46.5" cy="73" r="1" fill="#09090b"/>
+            <!-- Rote Fliege (Bowtie) -->
+            <polygon points="43,58 51,62 51,58 43,62" fill="#e11d48"/>
+            <circle cx="47" cy="60" r="2" fill="#be123c"/>
+            <!-- Frack-Revers / Kragen -->
+            <path d="M 40 58 L 44 74 L 39 72 Z" fill="#3f3f46"/>
+            <path d="M 54 58 L 50 74 L 55 72 Z" fill="#3f3f46"/>
+            <!-- Zylinder (Top Hat) auf dem Kopf -->
+            <!-- Krempe -->
+            <ellipse cx="58" cy="28" rx="19" ry="4.5" fill="#18181b" stroke="#09090b" stroke-width="1.5"/>
+            <!-- Hutkörper -->
+            <rect x="46" y="10" width="24" height="17" rx="2" fill="#27272a" stroke="#09090b" stroke-width="1.5"/>
+            <!-- Rotes Seidenband -->
+            <rect x="46" y="22" width="24" height="4" fill="#e11d48"/>
+            <!-- Hutdeckel -->
+            <ellipse cx="58" cy="10" rx="12" ry="2.5" fill="#3f3f46"/>
+          </svg>`,
+        gorilla: `
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="gradGorilla" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#4b5563"/>
+                <stop offset="60%" stop-color="#374151"/>
+                <stop offset="100%" stop-color="#1f2937"/>
+              </linearGradient>
+              <linearGradient id="gradLeather" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#27272a"/>
+                <stop offset="100%" stop-color="#09090b"/>
+              </linearGradient>
+              <linearGradient id="gradGuitar" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#f87171"/>
+                <stop offset="50%" stop-color="#dc2626"/>
+                <stop offset="100%" stop-color="#7f1d1d"/>
+              </linearGradient>
+            </defs>
+            <!-- Gorilla Ohren -->
+            <circle cx="25" cy="38" r="6" fill="#374151" stroke="#1f2937" stroke-width="1.5"/>
+            <circle cx="75" cy="38" r="6" fill="#374151" stroke="#1f2937" stroke-width="1.5"/>
+            <!-- Gorilla Kopf & mächtiger Nacken -->
+            <path d="M 28 42 C 26 24 40 18 50 18 C 60 18 74 24 72 42 C 76 56 78 80 72 86 C 60 90 40 90 28 86 C 22 80 24 56 28 42 Z"
+                  fill="url(#gradGorilla)" stroke="#111827" stroke-width="2.5"/>
+            <!-- Gorilla Stirnwulst & Gesichtspartie -->
+            <path d="M 33 34 C 36 30 45 30 50 33 C 55 30 64 30 67 34 C 69 42 66 48 50 48 C 34 48 31 42 33 34 Z" fill="#1f2937"/>
+            <!-- Augen -->
+            <ellipse cx="42" cy="37" rx="3.5" ry="4" fill="#fbbf24"/>
+            <circle cx="42" cy="37" r="2" fill="#000"/>
+            <circle cx="43" cy="36" r="0.8" fill="#fff"/>
+            <ellipse cx="58" cy="37" rx="3.5" ry="4" fill="#fbbf24"/>
+            <circle cx="58" cy="37" r="2" fill="#000"/>
+            <circle cx="59" cy="36" r="0.8" fill="#fff"/>
+            <!-- Schnauze / Maulbereich -->
+            <path d="M 36 46 C 36 43 64 43 64 46 C 66 54 62 60 50 60 C 38 60 34 54 36 46 Z" fill="#475569"/>
+            <!-- Nasenlöcher -->
+            <ellipse cx="46" cy="49" rx="2" ry="2.5" fill="#111827"/>
+            <ellipse cx="54" cy="49" rx="2" ry="2.5" fill="#111827"/>
+            <!-- Cooles Grinsen -->
+            <path d="M 42 54 Q 50 58 58 54" fill="none" stroke="#111827" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- Biker-Lederjacke -->
+            <path d="M 28 62 C 32 58 68 58 72 62 L 74 88 C 62 92 38 92 26 88 Z" fill="url(#gradLeather)" stroke="#09090b" stroke-width="2.5"/>
+            <!-- Revers & Nieten -->
+            <path d="M 32 60 L 44 72 L 34 76 Z" fill="#3f3f46" stroke="#18181b" stroke-width="1"/>
+            <path d="M 68 60 L 56 72 L 66 76 Z" fill="#3f3f46" stroke="#18181b" stroke-width="1"/>
+            <circle cx="36" cy="65" r="1.3" fill="#e4e4e7"/>
+            <circle cx="64" cy="65" r="1.3" fill="#e4e4e7"/>
+            <line x1="50" y1="62" x2="50" y2="88" stroke="#71717a" stroke-width="2" stroke-dasharray="2,2"/>
+            <!-- E-Gitarre (schräg gerockt) -->
+            <!-- Hals & Kopfplatte -->
+            <line x1="68" y1="52" x2="90" y2="34" stroke="#d97706" stroke-width="4.5" stroke-linecap="round"/>
+            <line x1="68" y1="52" x2="90" y2="34" stroke="#fef08a" stroke-width="2" stroke-linecap="round"/>
+            <!-- Kopfplatte -->
+            <path d="M 90 34 L 95 30 L 93 28 L 88 32 Z" fill="#dc2626"/>
+            <!-- Stimmwirbel -->
+            <circle cx="94" cy="29" r="1" fill="#fff"/>
+            <circle cx="92" cy="31" r="1" fill="#fff"/>
+            <!-- Korpus der E-Gitarre -->
+            <path d="M 38 74 C 34 66 44 60 52 66 C 58 68 64 64 68 70 C 72 76 68 84 62 86 C 52 89 42 82 38 74 Z"
+                  fill="url(#gradGuitar)" stroke="#7f1d1d" stroke-width="2"/>
+            <!-- Schlagbrett (Pickguard weiß) -->
+            <path d="M 46 68 Q 54 67 56 74 Q 50 78 46 72 Z" fill="#f8fafc"/>
+            <!-- Pickups & Saiten -->
+            <rect x="52" y="70" width="7" height="3" rx="1" fill="#18181b"/>
+            <line x1="44" y1="76" x2="88" y2="36" stroke="#ffffff" stroke-width="1.2" opacity="0.9"/>
+            <circle cx="48" cy="81" r="1.5" fill="#facc15"/>
+            <!-- Gorilla Hand am Hals & Korpus -->
+            <ellipse cx="74" cy="48" rx="4" ry="3" fill="#475569" stroke="#1f2937" stroke-width="1"/>
+            <ellipse cx="44" cy="73" rx="4" ry="3" fill="#475569" stroke="#1f2937" stroke-width="1"/>
           </svg>`
       },
       positive: {
@@ -1536,15 +1761,91 @@
         coin: `
           <svg viewBox="0 0 100 100">
             <defs>
-              <linearGradient id="gradCoin" x1="15%" y1="15%" x2="85%" y2="85%">
-                <stop offset="0%" stop-color="#fff59d"/>
-                <stop offset="40%" stop-color="#ffca28"/>
-                <stop offset="100%" stop-color="#ff8f00"/>
+              <radialGradient id="gradCoinOuter" cx="42%" cy="40%" r="65%">
+                <stop offset="0%" stop-color="#fffbeb"/>
+                <stop offset="25%" stop-color="#fde047"/>
+                <stop offset="60%" stop-color="#eab308"/>
+                <stop offset="85%" stop-color="#ca8a04"/>
+                <stop offset="100%" stop-color="#854d0e"/>
+              </radialGradient>
+              <linearGradient id="gradCoinRim" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fef08a"/>
+                <stop offset="50%" stop-color="#ca8a04"/>
+                <stop offset="100%" stop-color="#713f12"/>
+              </linearGradient>
+              <linearGradient id="gradCoinRelief" x1="20%" y1="20%" x2="80%" y2="80%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="45%" stop-color="#fde047"/>
+                <stop offset="100%" stop-color="#a16207"/>
               </linearGradient>
             </defs>
-            <circle cx="50" cy="50" r="44" fill="url(#gradCoin)" stroke="#e65100" stroke-width="3"/>
-            <circle cx="50" cy="50" r="36" fill="none" stroke="#fff9c4" stroke-width="3" stroke-dasharray="6,4"/>
-            <text x="50" y="64" font-size="44" font-weight="900" fill="#e65100" text-anchor="middle" font-family="sans-serif">+</text>
+            <!-- Äußerer Münzrand mit Rändelung (Milled Edge) -->
+            <circle cx="50" cy="50" r="46" fill="url(#gradCoinRim)" stroke="#713f12" stroke-width="2"/>
+            <circle cx="50" cy="50" r="44" fill="none" stroke="#713f12" stroke-width="3" stroke-dasharray="2.5,2.5"/>
+            <!-- Münzfläche -->
+            <circle cx="50" cy="50" r="41" fill="url(#gradCoinOuter)"/>
+            <!-- Erhabener Innenrand (Bezel) -->
+            <circle cx="50" cy="50" r="36" fill="none" stroke="#fef08a" stroke-width="2.5" opacity="0.9"/>
+            <circle cx="51" cy="51" r="35" fill="none" stroke="#854d0e" stroke-width="1.5" opacity="0.7"/>
+            <!-- Perlenkranz innen -->
+            <circle cx="50" cy="50" r="31" fill="none" stroke="#ca8a04" stroke-width="1.5" stroke-dasharray="3,3"/>
+            <!-- Glanzreflexion Lichtkante -->
+            <path d="M 22 36 A 36 36 0 0 1 68 18 A 38 38 0 0 0 22 36 Z" fill="#ffffff" opacity="0.45"/>
+            <!-- 3D Relief Stern & Prägung -->
+            <!-- Schatten der Prägung -->
+            <polygon points="51,26 55.5,37 67,37 57.5,44 61,55 51,48 41,55 44.5,44 35,37 46.5,37" fill="#713f12" opacity="0.6"/>
+            <!-- Erhabener Gold-Stern -->
+            <polygon points="50,25 54.5,36 66,36 56.5,43 60,54 50,47 40,54 43.5,43 34,36 45.5,36"
+                     fill="url(#gradCoinRelief)" stroke="#854d0e" stroke-width="1.2" stroke-linejoin="round"/>
+            <!-- Relief "+" Wertangabe darunter -->
+            <text x="51" y="75" font-size="20" font-weight="900" fill="#713f12" text-anchor="middle" font-family="system-ui, sans-serif" opacity="0.6">+1</text>
+            <text x="50" y="74" font-size="20" font-weight="900" fill="url(#gradCoinRelief)" text-anchor="middle" font-family="system-ui, sans-serif" stroke="#854d0e" stroke-width="0.8">+1</text>
+          </svg>`,
+        icecream: `
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="gradCone" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fde047"/>
+                <stop offset="40%" stop-color="#f59e0b"/>
+                <stop offset="100%" stop-color="#b45309"/>
+              </linearGradient>
+              <radialGradient id="gradVanilla" cx="35%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="50%" stop-color="#fef08a"/>
+                <stop offset="100%" stop-color="#eab308"/>
+              </radialGradient>
+              <radialGradient id="gradBerry" cx="35%" cy="30%" r="65%">
+                <stop offset="0%" stop-color="#fbcfe8"/>
+                <stop offset="45%" stop-color="#f43f5e"/>
+                <stop offset="100%" stop-color="#9f1239"/>
+              </radialGradient>
+            </defs>
+            <!-- Waffel (Cone) -->
+            <polygon points="50,96 24,52 76,52" fill="url(#gradCone)" stroke="#92400e" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- Waffelmuster Gitter -->
+            <line x1="33" y1="52" x2="57" y2="88" stroke="#92400e" stroke-width="1.5" opacity="0.65"/>
+            <line x1="43" y1="52" x2="62" y2="76" stroke="#92400e" stroke-width="1.5" opacity="0.65"/>
+            <line x1="53" y1="52" x2="66" y2="65" stroke="#92400e" stroke-width="1.5" opacity="0.65"/>
+            <line x1="67" y1="52" x2="43" y2="88" stroke="#92400e" stroke-width="1.5" opacity="0.65"/>
+            <line x1="57" y1="52" x2="38" y2="76" stroke="#92400e" stroke-width="1.5" opacity="0.65"/>
+            <line x1="47" y1="52" x2="34" y2="65" stroke="#92400e" stroke-width="1.5" opacity="0.65"/>
+            <!-- Untere Kugel (Vanille) -->
+            <circle cx="50" cy="50" r="22" fill="url(#gradVanilla)" stroke="#ca8a04" stroke-width="2"/>
+            <!-- Welliger Eiskugelsaum -->
+            <path d="M 24 53 Q 32 60 40 54 Q 50 60 60 54 Q 68 60 76 53" fill="none" stroke="#ca8a04" stroke-width="3" stroke-linecap="round"/>
+            <!-- Obere Kugel (Erdbeere) -->
+            <circle cx="50" cy="35" r="19" fill="url(#gradBerry)" stroke="#9f1239" stroke-width="2"/>
+            <ellipse cx="44" cy="28" rx="6" ry="3" fill="#ffffff" opacity="0.5" transform="rotate(-20 44 28)"/>
+            <!-- Schoko-Soße / Drip -->
+            <path d="M 36 29 C 40 38 43 28 47 36 C 51 29 55 38 60 31 C 64 27 62 23 50 20 C 38 23 33 25 36 29 Z" fill="#451a03"/>
+            <!-- Bunte Streusel (Sprinkles) -->
+            <line x1="40" y1="26" x2="44" y2="28" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="54" y1="28" x2="57" y2="25" stroke="#4ade80" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="48" y1="33" x2="52" y2="33" stroke="#facc15" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- Kirsche auf der Spitze -->
+            <circle cx="50" cy="17" r="7" fill="#dc2626" stroke="#991b1b" stroke-width="1.5"/>
+            <circle cx="48" cy="15" r="2" fill="#ffffff" opacity="0.8"/>
+            <path d="M 50 12 Q 58 4 64 7" fill="none" stroke="#16a34a" stroke-width="2.2" stroke-linecap="round"/>
           </svg>`
       },
       negative: {
@@ -1576,6 +1877,57 @@
             <circle cx="50" cy="50" r="44" fill="url(#gradStop)" stroke="#7f0000" stroke-width="3"/>
             <circle cx="50" cy="50" r="38" fill="none" stroke="#ffffff" stroke-width="3"/>
             <line x1="26" y1="50" x2="74" y2="50" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+          </svg>`,
+        dynamite: `
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="gradTntStickMid" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ef4444"/>
+                <stop offset="40%" stop-color="#dc2626"/>
+                <stop offset="100%" stop-color="#991b1b"/>
+              </linearGradient>
+              <linearGradient id="gradTntStickLeft" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#f87171"/>
+                <stop offset="50%" stop-color="#dc2626"/>
+                <stop offset="100%" stop-color="#7f1d1d"/>
+              </linearGradient>
+              <linearGradient id="gradTntStickRight" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#dc2626"/>
+                <stop offset="60%" stop-color="#b91c1c"/>
+                <stop offset="100%" stop-color="#7f1d1d"/>
+              </linearGradient>
+              <radialGradient id="gradSpark" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="35%" stop-color="#fef08a"/>
+                <stop offset="70%" stop-color="#f97316"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </radialGradient>
+            </defs>
+            <!-- Zündschnüre -->
+            <path d="M 33 34 Q 42 20 50 15" fill="none" stroke="#78716c" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M 50 30 L 50 15" fill="none" stroke="#78716c" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M 67 34 Q 58 20 50 15" fill="none" stroke="#78716c" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Brennende Funken am Schnurende (Spark) -->
+            <circle cx="50" cy="15" r="9" fill="url(#gradSpark)"/>
+            <polygon points="50,6 52.5,12.5 59,15 52.5,17.5 50,24 47.5,17.5 41,15 47.5,12.5" fill="#fde047"/>
+            <circle cx="50" cy="15" r="2.5" fill="#ffffff"/>
+            <circle cx="43" cy="9" r="1.2" fill="#f97316"/>
+            <circle cx="57" cy="10" r="1.5" fill="#facc15"/>
+            <circle cx="55" cy="20" r="1" fill="#f97316"/>
+            <!-- Linke Dynamitstange -->
+            <rect x="23" y="34" width="18" height="50" rx="3.5" fill="url(#gradTntStickLeft)" stroke="#7f1d1d" stroke-width="1.8"/>
+            <ellipse cx="32" cy="34" rx="9" ry="3" fill="#ef4444"/>
+            <!-- Rechte Dynamitstange -->
+            <rect x="59" y="34" width="18" height="50" rx="3.5" fill="url(#gradTntStickRight)" stroke="#7f1d1d" stroke-width="1.8"/>
+            <ellipse cx="68" cy="34" rx="9" ry="3" fill="#b91c1c"/>
+            <!-- Mittlere Dynamitstange (hervorgehoben) -->
+            <rect x="40" y="30" width="20" height="56" rx="4" fill="url(#gradTntStickMid)" stroke="#7f1d1d" stroke-width="2"/>
+            <ellipse cx="50" cy="30" rx="10" ry="3.5" fill="#f87171"/>
+            <!-- Schwarzes Halteband mit Aufdruck TNT -->
+            <rect x="21" y="52" width="58" height="15" fill="#18181b" stroke="#09090b" stroke-width="1.5"/>
+            <text x="50" y="64" font-size="10.5" font-weight="900" fill="#fde047" text-anchor="middle" font-family="system-ui, sans-serif" letter-spacing="1.5">TNT</text>
+            <!-- Gefahrensymbol / -1 Aufdruck unten -->
+            <text x="50" y="80" font-size="9" font-weight="900" fill="#fecaca" text-anchor="middle" font-family="system-ui, sans-serif">-1</text>
           </svg>`
       }
     };
@@ -1915,6 +2267,8 @@
     const newGameBtn = document.getElementById('newGameBtn');
     const changePasscodeBtn = document.getElementById('changePasscodeBtn');
     const negativeToggle = document.getElementById('negativeToggle');
+    const settingsGoalInput = document.getElementById('settingsGoalInput');
+    const saveGoalBtn = document.getElementById('saveGoalBtn');
 
     // PIN Keypad Modal
     const pinModal = document.getElementById('pinModal');
@@ -2106,12 +2460,20 @@
       document.getElementById('preview-char-smiley').innerHTML = SVG_ASSETS.characters.smiley;
       document.getElementById('preview-char-robot').innerHTML = SVG_ASSETS.characters.robot;
       document.getElementById('preview-char-cat').innerHTML = SVG_ASSETS.characters.cat;
+      document.getElementById('preview-char-dino').innerHTML = SVG_ASSETS.characters.dino;
+      document.getElementById('preview-char-gorilla').innerHTML = SVG_ASSETS.characters.gorilla;
 
       document.getElementById('preview-pos-star').innerHTML = SVG_ASSETS.positive.star;
       document.getElementById('preview-pos-coin').innerHTML = SVG_ASSETS.positive.coin;
+      document.getElementById('preview-pos-icecream').innerHTML = SVG_ASSETS.positive.icecream;
 
       document.getElementById('preview-neg-cloud').innerHTML = SVG_ASSETS.negative.cloud;
       document.getElementById('preview-neg-barrier').innerHTML = SVG_ASSETS.negative.barrier;
+      document.getElementById('preview-neg-dynamite').innerHTML = SVG_ASSETS.negative.dynamite;
+
+      if (settingsGoalInput) {
+        settingsGoalInput.value = state.goal || '';
+      }
 
       applyNegativeItemVisibility();
       applyLockStateUI();
@@ -2498,8 +2860,12 @@
 
     openSettingsBtn.addEventListener('click', () => {
       sound.init();
+      if (settingsGoalInput) {
+        settingsGoalInput.value = state.goal || '';
+      }
       if (state.isLocked) {
         openPinModal('unlock', '🔒 Einstellungen entsperren', 'Gib den Session-Passcode ein:', () => {
+          if (settingsGoalInput) settingsGoalInput.value = state.goal || '';
           settingsModal.classList.add('open');
         });
       } else {
@@ -2536,8 +2902,25 @@
       }
     });
 
-    // Neues Spiel über Settings
+    // Ziel in Settings speichern
+    saveGoalBtn.addEventListener('click', () => {
+      const newGoal = settingsGoalInput.value.trim();
+      state.goal = newGoal;
+      saveState();
+      updateGoalDisplay();
+      showToast(state.goal ? `🎯 Ziel aktualisiert: "${state.goal}"` : '🎯 Ziel entfernt');
+      sound.playPositive();
+    });
+
+    settingsGoalInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        saveGoalBtn.click();
+      }
+    });
+
+    // Neues Spiel über Settings (schließt sofort das Settings-Fenster)
     newGameBtn.addEventListener('click', () => {
+      settingsModal.classList.remove('open');
       openNewGameModal();
     });
 
