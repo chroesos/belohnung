@@ -52,7 +52,7 @@
     }
 
     /* ==========================================================================
-       Kopfbereich / Header mit Zähler und Lock/Settings Steuerung
+       Kopfbereich / Header mit Zähler, Ziel-Badge und Lock/Settings Steuerung
        ========================================================================== */
     header {
       width: 100%;
@@ -76,6 +76,7 @@
       border-radius: 999px;
       padding: 6px 20px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      flex-shrink: 0;
     }
 
     .counter-value {
@@ -93,10 +94,48 @@
       color: rgba(255, 255, 255, 0.65);
     }
 
+    /* Zentral oben: Belohnungs-Ziel Display */
+    .goal-badge {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 209, 92, 0.4);
+      border-radius: 999px;
+      padding: 6px 18px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+      max-width: 42%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      z-index: 60;
+    }
+
+    .goal-badge .goal-icon {
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+
+    .goal-badge .goal-text {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #ffd15c;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .header-actions {
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-shrink: 0;
     }
 
     /* Lock/Unlock Button in der oberen Leiste */
@@ -191,32 +230,36 @@
     }
 
     /* ==========================================================================
-       Spielbereich (Arena: Belohnung - Figur - Abzug)
+       Spielbereich (Arena: 3-Spalten CSS Grid für IMMER PERFEKT ZENTRIERTE Figur)
        ========================================================================== */
     .arena {
       flex: 1;
       width: 100%;
       max-width: 1000px;
-      display: flex;
-      justify-content: space-around;
+      display: grid;
+      grid-template-columns: 1fr minmax(220px, auto) 1fr;
       align-items: center;
+      justify-items: center;
       position: relative;
-      transition: all 0.35s ease;
     }
 
     .lane {
-      flex: 1;
+      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       position: relative;
       height: 100%;
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      transition: opacity 0.3s ease;
     }
 
+    /* Wenn das Negativ-Item deaktiviert ist: Platzhalter bleibt erhalten, Figur bleibt zentriert! */
     .lane.hidden {
-      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      opacity: 0 !important;
+      display: flex !important;
     }
 
     /* Hauptfigur und animierte Aura */
@@ -342,7 +385,6 @@
     }
 
     /* Aura-Stile / Farbpaletten */
-    /* FEUER */
     .aura-style-fire .aura-glow {
       background: radial-gradient(circle, rgba(255, 235, 120, 0.95) 0%, rgba(255, 120, 0, 0.75) 45%, rgba(230, 0, 50, 0.35) 75%, transparent 100%);
       box-shadow: 0 0 50px rgba(255, 120, 0, 0.8), 0 0 90px rgba(255, 210, 0, 0.5);
@@ -358,7 +400,6 @@
       box-shadow: 0 0 40px 10px rgba(255, 100, 0, 0.65);
     }
 
-    /* MAGIE */
     .aura-style-magic .aura-glow {
       background: radial-gradient(circle, rgba(180, 240, 255, 0.95) 0%, rgba(147, 51, 234, 0.75) 45%, rgba(236, 72, 153, 0.35) 75%, transparent 100%);
       box-shadow: 0 0 50px rgba(147, 51, 234, 0.85), 0 0 90px rgba(56, 189, 248, 0.55);
@@ -374,7 +415,6 @@
       box-shadow: 0 0 40px 10px rgba(168, 85, 247, 0.65);
     }
 
-    /* NATUR */
     .aura-style-nature .aura-glow {
       background: radial-gradient(circle, rgba(220, 255, 160, 0.95) 0%, rgba(16, 185, 129, 0.75) 45%, rgba(5, 150, 105, 0.35) 75%, transparent 100%);
       box-shadow: 0 0 50px rgba(16, 185, 129, 0.85), 0 0 90px rgba(245, 158, 11, 0.45);
@@ -495,7 +535,6 @@
       transition: transform 0.32s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
-    /* Sperr-Status Indikator an den Item-Slots */
     .slot-lock-indicator {
       position: absolute;
       bottom: 0px;
@@ -517,7 +556,6 @@
       z-index: 25;
     }
 
-    /* Wenn die App gesperrt ist */
     .app-locked .slot-lock-indicator {
       opacity: 1;
       transform: scale(1);
@@ -532,7 +570,6 @@
       cursor: not-allowed;
     }
 
-    /* Schütteln bei Versuch, im gesperrten Zustand zu füttern */
     .drag-item.lock-shake {
       animation: lockShake 0.45s ease-out;
     }
@@ -629,7 +666,7 @@
     }
 
     /* ==========================================================================
-       Modale Fenster & Settings
+       Modale Fenster & Formulare
        ========================================================================== */
     .modal-backdrop {
       position: fixed;
@@ -716,7 +753,6 @@
       align-items: center;
     }
 
-    /* Status-Karte (Lock / Unlock & New Game) */
     .control-card {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -800,7 +836,29 @@
       background: rgba(99, 102, 241, 0.4);
     }
 
-    /* iOS Toggle Switch (Negative Item on/off) */
+    .modal-text-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 1rem;
+      color: #ffffff;
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease;
+      font-family: inherit;
+    }
+
+    .modal-text-input:focus {
+      border-color: #ffd15c;
+      background: rgba(255, 255, 255, 0.13);
+    }
+
+    .modal-text-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* iOS Toggle Switch */
     .toggle-row {
       display: flex;
       justify-content: space-between;
@@ -997,6 +1055,84 @@
       75% { transform: translateX(12px); }
     }
 
+    /* ==========================================================================
+       Feuerwerk & Feierliches Victory-Infofenster
+       ========================================================================== */
+    #fireworksCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 250;
+    }
+
+    .victory-modal-card {
+      max-width: 490px;
+      text-align: center;
+      background: radial-gradient(circle at 50% 20%, #2f255c 0%, #131525 100%);
+      border: 2px solid rgba(255, 215, 0, 0.55);
+      box-shadow: 0 0 60px rgba(255, 209, 92, 0.4), 0 25px 70px rgba(0, 0, 0, 0.75);
+      padding: 32px 24px;
+      gap: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .victory-badge {
+      font-size: 4.5rem;
+      animation: trophyPulse 1.4s infinite ease-in-out;
+      filter: drop-shadow(0 10px 24px rgba(255, 209, 92, 0.6));
+      display: inline-block;
+    }
+
+    @keyframes trophyPulse {
+      0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+      50% { transform: translateY(-12px) scale(1.14) rotate(4deg); }
+    }
+
+    .victory-title {
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: #ffd15c;
+      letter-spacing: 1.5px;
+      text-shadow: 0 3px 18px rgba(255, 209, 92, 0.7);
+    }
+
+    .quote-box {
+      min-height: 98px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 215, 0, 0.3);
+      border-radius: 22px;
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(255, 209, 92, 0.1);
+    }
+
+    .quote-text {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.45;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      white-space: pre-line;
+    }
+
+    .quote-text.fade-out {
+      opacity: 0;
+      transform: translateY(-15px) scale(0.94);
+    }
+
+    .quote-text.fade-in {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
     /* Partikel-Effekt */
     .particle {
       position: absolute;
@@ -1019,17 +1155,26 @@
   </style>
 </head>
 <body>
+  <!-- Canvas für Feuerwerk -->
+  <canvas id="fireworksCanvas"></canvas>
+
   <div id="app">
-    <!-- Floating Toast Notification bei gesperrter Interaktion -->
+    <!-- Floating Toast Notification -->
     <div class="toast-notification" id="toastNotification">
       <span id="toastText">🔒 App ist gesperrt – Füttern deaktiviert</span>
     </div>
 
-    <!-- Kopfbereich mit Zähler links und Lock-Status & Settings rechts -->
+    <!-- Kopfbereich mit Zähler links, Ziel-Badge in der Mitte und Lock/Settings rechts -->
     <header>
       <div class="counter-badge" aria-label="Aktueller Zählerstand">
         <span class="counter-value" id="counterValue">0</span>
         <span class="counter-max">/ 10</span>
+      </div>
+
+      <!-- Zentral oben: Belohnungs-Ziel (ausgeblendet wenn leer) -->
+      <div class="goal-badge" id="goalBadge" style="display: none;">
+        <span class="goal-icon">🎯</span>
+        <span class="goal-text" id="goalText"></span>
       </div>
 
       <div class="header-actions">
@@ -1049,7 +1194,7 @@
       </div>
     </header>
 
-    <!-- Spiel-Arena -->
+    <!-- Spiel-Arena (Figur bleibt immer exakt zentriert) -->
     <main class="arena" id="arenaMain">
       <!-- Belohnungs-Item links -->
       <div class="lane lane-positive" id="lanePositive">
@@ -1076,7 +1221,7 @@
         </div>
       </div>
 
-      <!-- Abzugs-Item rechts (kann via Settings abgeschaltet werden) -->
+      <!-- Abzugs-Item rechts (kann via Settings abgeschaltet werden, behält aber Grid-Balance!) -->
       <div class="lane lane-negative" id="laneNegative">
         <div class="item-slot" id="negSlot">
           <div class="item-halo"></div>
@@ -1095,6 +1240,61 @@
         <!-- 10 Slots generiert via JS -->
       </div>
     </footer>
+  </div>
+
+  <!-- Feierliches Infofenster bei 10 Punkten (Victory Modal) -->
+  <div class="modal-backdrop" id="victoryModal">
+    <div class="modal-card victory-modal-card">
+      <div class="victory-badge">🏆</div>
+      <div class="victory-title">ZIEL ERREICHT!</div>
+      
+      <div class="quote-box">
+        <div class="quote-text" id="victoryQuoteText">10 Punkte! Wow!&#10;Belohnung erarbeitet!</div>
+      </div>
+
+      <div style="display: flex; justify-content: center; margin-top: 10px;">
+        <button class="primary-btn" id="victoryNextBtn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 16px 44px; font-size: 1.25rem; font-weight: 800; border-radius: 999px; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45); letter-spacing: 0.5px;">
+          Klasse! 🎉
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Neues Spiel Modal (Ziel-Text & Passcode festlegen) -->
+  <div class="modal-backdrop" id="newGameModal">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-header">
+        <div class="modal-title">⭐ Neues Spiel starten</div>
+        <button class="close-modal-btn" id="closeNewGameBtn" aria-label="Schließen">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 0.95rem; font-weight: 700; color: #ffd15c;" for="newGameGoalInput">
+            🎯 Belohnungs-Ziel (optional):
+          </label>
+          <input type="text" id="newGameGoalInput" class="modal-text-input" placeholder="z. B. 20 Min. iPad, Eis essen..." maxlength="40">
+          <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Wird zentral oben in der App angezeigt (leer lassen zum Ausblenden)</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 0.95rem; font-weight: 700; color: #ffffff;" for="newGamePasscodeInput">
+            🔑 4-stelliger Session-Passcode:
+          </label>
+          <input type="tel" id="newGamePasscodeInput" class="modal-text-input" placeholder="1234" maxlength="4" pattern="[0-9]*" style="font-size: 1.25rem; letter-spacing: 4px; text-align: center;">
+          <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Wird zum späteren Entsperren der App benötigt</span>
+        </div>
+
+        <button class="primary-btn" id="confirmNewGameBtn" style="padding: 14px; font-size: 1.05rem; background: #3b82f6; margin-top: 6px;">
+          🚀 Neues Spiel starten
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Einstellungen / Settings Modal -->
@@ -1147,7 +1347,6 @@
       </div>
 
       <!-- 3. Skins -->
-      <!-- Figur-Auswahl -->
       <div>
         <div class="section-title">Hauptfigur Skin</div>
         <div class="options-grid" id="charOptions">
@@ -1166,7 +1365,6 @@
         </div>
       </div>
 
-      <!-- Belohnungs-Item Auswahl -->
       <div>
         <div class="section-title">Belohnungs-Item Skin (+)</div>
         <div class="options-grid" style="grid-template-columns: repeat(2, 1fr);" id="posOptions">
@@ -1181,7 +1379,6 @@
         </div>
       </div>
 
-      <!-- Abzugs-Item Auswahl (nur aktiv wenn Negativ-Item eingeschaltet) -->
       <div id="negOptionsSection">
         <div class="section-title">Abzugs-Item Skin (-)</div>
         <div class="options-grid" style="grid-template-columns: repeat(2, 1fr);" id="negOptions">
@@ -1196,7 +1393,6 @@
         </div>
       </div>
 
-      <!-- Aura Auswahl -->
       <div>
         <div class="section-title">Aura-Stil & Animation</div>
         <div class="options-grid" id="auraOptions">
@@ -1217,7 +1413,7 @@
     </div>
   </div>
 
-  <!-- Touch Keypad Modal für PIN / Passcode (Entsperren / Neues Spiel / Ändern) -->
+  <!-- Touch Keypad Modal für PIN / Passcode (Entsperren / Ändern) -->
   <div class="modal-backdrop" id="pinModal">
     <div class="modal-card pin-modal-card">
       <div class="modal-title" id="pinModalTitle" style="justify-content: center;">
@@ -1467,22 +1663,22 @@
       playVictory() {
         this.init();
         if (!this.ctx) return;
-        const notes = [523.25, 659.25, 783.99, 1046.5];
+        const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5, 1567.98];
         notes.forEach((freq, idx) => {
-          const now = this.ctx.currentTime + idx * 0.08;
+          const now = this.ctx.currentTime + idx * 0.09;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
 
-          osc.type = 'sine';
+          osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
           osc.frequency.setValueAtTime(freq, now);
 
-          gain.gain.setValueAtTime(0.25, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          gain.gain.setValueAtTime(0.28, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
 
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.35);
+          osc.stop(now + 0.42);
         });
       }
     }
@@ -1490,9 +1686,147 @@
     const sound = new SoundEffects();
 
     /* ==========================================================================
+       Feuerwerk-Engine (HTML5 Canvas, 60fps, touch-optimiert, 0 Libs)
+       ========================================================================== */
+    class FireworksEngine {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.rockets = [];
+        this.particles = [];
+        this.isRunning = false;
+        this.spawnTimer = null;
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+      }
+
+      resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
+
+      start() {
+        this.resize();
+        this.isRunning = true;
+        this.rockets = [];
+        this.particles = [];
+        this.loop();
+
+        if (this.spawnTimer) clearInterval(this.spawnTimer);
+
+        for (let i = 0; i < 3; i++) {
+          setTimeout(() => this.spawnRocket(), i * 160);
+        }
+
+        this.spawnTimer = setInterval(() => {
+          if (this.isRunning) {
+            this.spawnRocket();
+          }
+        }, 380);
+      }
+
+      stop() {
+        this.isRunning = false;
+        if (this.spawnTimer) {
+          clearInterval(this.spawnTimer);
+          this.spawnTimer = null;
+        }
+      }
+
+      spawnRocket() {
+        const x = Math.random() * (this.canvas.width * 0.72) + this.canvas.width * 0.14;
+        const targetY = Math.random() * (this.canvas.height * 0.42) + this.canvas.height * 0.12;
+        const speed = Math.random() * 4 + 13;
+        const colors = [
+          '#ffd700', '#ff2a6d', '#05d9e8', '#00ff87', '#ff9f1c', '#9b5de5', '#ffffff'
+        ];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        this.rockets.push({
+          x,
+          y: this.canvas.height,
+          targetY,
+          speed,
+          color
+        });
+      }
+
+      explode(x, y, color) {
+        const count = Math.floor(Math.random() * 25 + 55);
+        for (let i = 0; i < count; i++) {
+          const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.2 - 0.1);
+          const speed = Math.random() * 5.5 + 2.2;
+          this.particles.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            color,
+            alpha: 1,
+            decay: Math.random() * 0.013 + 0.015,
+            size: Math.random() * 2.8 + 2
+          });
+        }
+      }
+
+      loop() {
+        if (!this.isRunning && this.rockets.length === 0 && this.particles.length === 0) {
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          return;
+        }
+
+        this.ctx.globalCompositeOperation = 'destination-out';
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.24)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.globalCompositeOperation = 'lighter';
+
+        for (let i = this.rockets.length - 1; i >= 0; i--) {
+          const r = this.rockets[i];
+          r.y -= r.speed;
+          this.ctx.fillStyle = r.color;
+          this.ctx.beginPath();
+          this.ctx.arc(r.x, r.y, 3.2, 0, Math.PI * 2);
+          this.ctx.fill();
+
+          if (r.y <= r.targetY) {
+            this.explode(r.x, r.y, r.color);
+            this.rockets.splice(i, 1);
+          }
+        }
+
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.085;
+          p.vx *= 0.98;
+          p.vy *= 0.98;
+          p.alpha -= p.decay;
+
+          if (p.alpha <= 0) {
+            this.particles.splice(i, 1);
+          } else {
+            this.ctx.save();
+            this.ctx.globalAlpha = p.alpha;
+            this.ctx.fillStyle = p.color;
+            this.ctx.shadowBlur = 8;
+            this.ctx.shadowColor = p.color;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.restore();
+          }
+        }
+
+        requestAnimationFrame(() => this.loop());
+      }
+    }
+
+    const fireworks = new FireworksEngine(document.getElementById('fireworksCanvas'));
+
+    /* ==========================================================================
        App State & Persistenz (localStorage)
        ========================================================================== */
-    const STORAGE_KEY = 'kids_reward_app_state_v3';
+    const STORAGE_KEY = 'kids_reward_app_state_v4';
 
     const state = {
       count: 0,
@@ -1502,7 +1836,10 @@
       auraSkin: 'aura-style-fire',
       negativeItemActive: true,
       isLocked: false,
-      passcode: '1234'
+      passcode: '1234',
+      goal: '',
+      buttonLabelIndex: 0,
+      sessionQuoteIndex: 0
     };
 
     function loadState() {
@@ -1518,6 +1855,9 @@
           if (typeof parsed.negativeItemActive === 'boolean') state.negativeItemActive = parsed.negativeItemActive;
           if (typeof parsed.isLocked === 'boolean') state.isLocked = parsed.isLocked;
           if (typeof parsed.passcode === 'string' && parsed.passcode.length === 4) state.passcode = parsed.passcode;
+          if (typeof parsed.goal === 'string') state.goal = parsed.goal;
+          if (typeof parsed.buttonLabelIndex === 'number') state.buttonLabelIndex = parsed.buttonLabelIndex;
+          if (typeof parsed.sessionQuoteIndex === 'number') state.sessionQuoteIndex = parsed.sessionQuoteIndex;
         }
       } catch (e) {
         console.warn('LocalStorage load error:', e);
@@ -1545,13 +1885,27 @@
     const negOptionsSectionEl = document.getElementById('negOptionsSection');
     const progressBarEl = document.getElementById('progressBar');
     
-    // Header & Lock Steuerung
+    // Header & Ziel & Lock Steuerung
+    const goalBadge = document.getElementById('goalBadge');
+    const goalText = document.getElementById('goalText');
     const headerLockBtn = document.getElementById('headerLockBtn');
     const headerLockIcon = document.getElementById('headerLockIcon');
     const headerLockText = document.getElementById('headerLockText');
     const openSettingsBtn = document.getElementById('openSettingsBtn');
     const toastNotification = document.getElementById('toastNotification');
     const toastText = document.getElementById('toastText');
+
+    // Victory Modal (10 Punkte)
+    const victoryModal = document.getElementById('victoryModal');
+    const victoryQuoteText = document.getElementById('victoryQuoteText');
+    const victoryNextBtn = document.getElementById('victoryNextBtn');
+
+    // Neues Spiel Modal
+    const newGameModal = document.getElementById('newGameModal');
+    const newGameGoalInput = document.getElementById('newGameGoalInput');
+    const newGamePasscodeInput = document.getElementById('newGamePasscodeInput');
+    const closeNewGameBtn = document.getElementById('closeNewGameBtn');
+    const confirmNewGameBtn = document.getElementById('confirmNewGameBtn');
 
     // Settings Modal
     const settingsModal = document.getElementById('settingsModal');
@@ -1582,6 +1936,105 @@
     }
 
     /* ==========================================================================
+       Rotierende Feier-Sprüche (immer mit Fokus auf "Punkte" & hohe Varianz)
+       ========================================================================== */
+    const VICTORY_QUOTES = [
+      "10 Punkte! Wow!\nBelohnung erarbeitet! 🎉",
+      "Unglaubliche 10 Punkte!\nDu hast es voll drauf! 🌟",
+      "10 von 10 Punkten geschafft!\nVolle Punktzahl für dich! 🏆",
+      "Alle 10 Punkte gesammelt!\nGroßartige Leistung! 🚀",
+      "10 Punkte erreicht!\nJetzt gibt es deine Belohnung! 🎁",
+      "Bäm! 10 Punkte auf dem Konto!\nEinfach meisterhaft! 💥",
+      "10 Punkte im Kasten!\nDu hast dich super angestrengt! 🎈",
+      "Volltreffer: 10 Punkte!\nDu bist heute Spitzenklasse! ✨",
+      "Perfekte 10 Punkte!\nZeit zum Feiern! 🥳",
+      "10 Punkte geholt!\nDas hast du dir ehrlich verdient! 🥇"
+    ];
+
+    const VICTORY_BUTTON_LABELS = [
+      "Klasse! 🎉",
+      "Nice! ✨",
+      "Super! 🌟",
+      "Mega! 🚀",
+      "Toll! 🎈",
+      "Spitze! 🏆",
+      "Chapeau! 🥇"
+    ];
+
+    let currentQuoteOffset = 0;
+    let victoryQuoteTimer = null;
+
+    function startVictoryQuotes() {
+      currentQuoteOffset = 0;
+      const initialIndex = (state.sessionQuoteIndex + currentQuoteOffset) % VICTORY_QUOTES.length;
+      victoryQuoteText.textContent = VICTORY_QUOTES[initialIndex];
+      victoryQuoteText.classList.remove('fade-out');
+      victoryQuoteText.classList.add('fade-in');
+
+      // Rotierender Knopf-Text pro Session
+      const btnLabel = VICTORY_BUTTON_LABELS[state.buttonLabelIndex % VICTORY_BUTTON_LABELS.length];
+      victoryNextBtn.textContent = btnLabel;
+
+      if (victoryQuoteTimer) clearInterval(victoryQuoteTimer);
+      victoryQuoteTimer = setInterval(() => {
+        victoryQuoteText.classList.remove('fade-in');
+        victoryQuoteText.classList.add('fade-out');
+        setTimeout(() => {
+          currentQuoteOffset++;
+          const nextIdx = (state.sessionQuoteIndex + currentQuoteOffset) % VICTORY_QUOTES.length;
+          victoryQuoteText.textContent = VICTORY_QUOTES[nextIdx];
+          victoryQuoteText.classList.remove('fade-out');
+          victoryQuoteText.classList.add('fade-in');
+        }, 350);
+      }, 2800);
+    }
+
+    function stopVictoryQuotes() {
+      if (victoryQuoteTimer) {
+        clearInterval(victoryQuoteTimer);
+        victoryQuoteTimer = null;
+      }
+    }
+
+    function triggerVictoryCelebration() {
+      sound.playVictory();
+      fireworks.start();
+      startVictoryQuotes();
+      victoryModal.classList.add('open');
+    }
+
+    function closeVictoryCelebration() {
+      victoryModal.classList.remove('open');
+      stopVictoryQuotes();
+      fireworks.stop();
+    }
+
+    /* Klick auf den rotierenden Victory-Knopf:
+       Startet neue Session mit bestehendem Passcode und Zähler bei 0 */
+    victoryNextBtn.addEventListener('click', () => {
+      closeVictoryCelebration();
+      state.count = 0;
+      state.buttonLabelIndex = (state.buttonLabelIndex + 1) % VICTORY_BUTTON_LABELS.length;
+      state.sessionQuoteIndex = (state.sessionQuoteIndex + 1) % VICTORY_QUOTES.length;
+      saveState();
+      updateCounterDisplay();
+      showToast('⭐ Neue Session gestartet! Punkte auf 0 gesetzt.');
+    });
+
+    /* ==========================================================================
+       Ziel-Anzeige aktualisieren
+       ========================================================================== */
+    function updateGoalDisplay() {
+      if (state.goal && state.goal.trim() !== '') {
+        goalText.textContent = state.goal.trim();
+        goalBadge.style.display = 'flex';
+      } else {
+        goalBadge.style.display = 'none';
+        goalText.textContent = '';
+      }
+    }
+
+    /* ==========================================================================
        Aura-Animation & Zähler-Updates
        ========================================================================== */
     function updateAuraAnimation(triggerBurst = false) {
@@ -1597,15 +2050,12 @@
         
         auraSystemEl.style.setProperty('--aura-intensity', ratio.toFixed(2));
         
-        // Skaliert von 0.72 (Z=1) bis 1.55 (Z=10)
         const scale = 0.72 + ratio * 0.83;
         auraSystemEl.style.setProperty('--aura-scale', scale.toFixed(2));
 
-        // Rotationsdauer wird mit höherem Z schneller (von 9s auf 2.2s)
         const spinDuration = 9.0 - ratio * 6.8;
         auraSystemEl.style.setProperty('--aura-spin-duration', `${spinDuration.toFixed(2)}s`);
 
-        // Pulsieren wird energiegeladener (von 2.6s auf 1.1s)
         const pulseDuration = 2.6 - ratio * 1.5;
         auraSystemEl.style.setProperty('--aura-pulse-duration', `${pulseDuration.toFixed(2)}s`);
       }
@@ -1665,6 +2115,7 @@
 
       applyNegativeItemVisibility();
       applyLockStateUI();
+      updateGoalDisplay();
       updateModalActiveStates();
       updateCounterDisplay();
     }
@@ -1683,28 +2134,20 @@
     /* Sperrstatus für die GESAMTE App verwalten */
     function applyLockStateUI() {
       if (state.isLocked) {
-        // App-Klasse für globale Sperre
         appEl.classList.add('app-locked');
-
-        // Header-Button
         headerLockBtn.className = 'lock-state-btn is-locked';
         headerLockIcon.textContent = '🔒';
         headerLockText.textContent = 'Gesperrt';
 
-        // Settings Modal
         statusPill.className = 'status-pill locked';
         statusPill.textContent = '🔒 Gesperrt (Füttern blockiert)';
         toggleLockBtn.innerHTML = '🔓 Jetzt entsperren';
       } else {
-        // App-Klasse entfernen
         appEl.classList.remove('app-locked');
-
-        // Header-Button
         headerLockBtn.className = 'lock-state-btn is-unlocked';
         headerLockIcon.textContent = '🔓';
         headerLockText.textContent = 'Entsperrt';
 
-        // Settings Modal
         statusPill.className = 'status-pill unlocked';
         statusPill.textContent = '🔓 Entsperrt (Füttern aktiv)';
         toggleLockBtn.innerHTML = '🔒 Jetzt sperren';
@@ -1766,7 +2209,7 @@
       if (state.count < 10) {
         state.count = Math.min(10, state.count + 1);
         if (state.count === 10) {
-          sound.playVictory();
+          triggerVictoryCelebration();
         } else {
           sound.playPositive();
         }
@@ -1801,7 +2244,6 @@
 
     /* ==========================================================================
        Touch Drag-and-Drop (iPad & Safari optimiert)
-       Unterbindet jegliches Füttern bei gesperrter App!
        ========================================================================== */
     function setupDragAndDrop(itemEl) {
       let isDragging = false;
@@ -1814,10 +2256,9 @@
         e.preventDefault();
         sound.init();
 
-        // WICHTIG: Ist die App gelockt, kann die Figur NICHT gefüttert werden!
         if (state.isLocked) {
           itemEl.classList.remove('lock-shake');
-          void itemEl.offsetWidth; // Reflow erzwingen
+          void itemEl.offsetWidth;
           itemEl.classList.add('lock-shake');
           sound.playLocked();
           showToast('🔒 App ist gesperrt – Füttern deaktiviert! Oben zum Entsperren tippen.');
@@ -1865,7 +2306,6 @@
 
         itemEl.classList.remove('dragging');
 
-        // Kollisionsabfrage mit der Hauptfigur
         const itemRect = itemEl.getBoundingClientRect();
         const charRect = characterEl.getBoundingClientRect();
 
@@ -1908,10 +2348,10 @@
     setupDragAndDrop(negItemEl);
 
     /* ==========================================================================
-       PIN Keypad & Passcode Management (Lock / Unlock / New Game)
+       PIN Keypad & Passcode Management (Entsperren / Ändern)
        ========================================================================== */
     let pinInputBuffer = '';
-    let pinCurrentMode = 'unlock'; // 'unlock' | 'newGame' | 'change'
+    let pinCurrentMode = 'unlock'; // 'unlock' | 'change'
     let onPinSuccessCallback = null;
 
     function openPinModal(mode, title, msg, onSuccess) {
@@ -1985,17 +2425,6 @@
         } else {
           showPinError('Falscher Passcode!');
         }
-      } else if (pinCurrentMode === 'newGame') {
-        state.passcode = pinInputBuffer;
-        state.count = 0;
-        state.isLocked = false; // Neues Spiel startet entsperrt
-        saveState();
-        applyLockStateUI();
-        updateCounterDisplay();
-        closePinModal();
-        settingsModal.classList.remove('open');
-        showToast('⭐ Neues Spiel gestartet! (Entsperrt)');
-        sound.playVictory();
       } else if (pinCurrentMode === 'change') {
         state.passcode = pinInputBuffer;
         saveState();
@@ -2013,16 +2442,52 @@
     }
 
     /* ==========================================================================
+       Neues Spiel Modal (Ziel-Text & Passcode festlegen)
+       ========================================================================== */
+    function openNewGameModal() {
+      newGameGoalInput.value = state.goal || '';
+      newGamePasscodeInput.value = state.passcode || '1234';
+      newGameModal.classList.add('open');
+    }
+
+    closeNewGameBtn.addEventListener('click', () => {
+      newGameModal.classList.remove('open');
+    });
+
+    confirmNewGameBtn.addEventListener('click', () => {
+      const goalVal = newGameGoalInput.value.trim();
+      const passVal = newGamePasscodeInput.value.trim();
+
+      if (passVal.length !== 4) {
+        alert('Bitte gib einen 4-stelligen Passcode ein.');
+        return;
+      }
+
+      state.goal = goalVal;
+      state.passcode = passVal;
+      state.count = 0;
+      state.isLocked = false; // Startet unlocked
+
+      saveState();
+      updateGoalDisplay();
+      applyLockStateUI();
+      updateCounterDisplay();
+
+      newGameModal.classList.remove('open');
+      settingsModal.classList.remove('open');
+
+      showToast(state.goal ? `⭐ Neues Spiel mit Ziel: "${state.goal}" gestartet!` : '⭐ Neues Spiel gestartet!');
+      sound.playVictory();
+    });
+
+    /* ==========================================================================
        Lock / Unlock & Settings Event Listener
        ========================================================================== */
-    // Direktes Umschalten über den Header Lock Button
     headerLockBtn.addEventListener('click', () => {
       sound.init();
       if (state.isLocked) {
-        // App ist gesperrt -> Passcode abfragen zum Entsperren
         openPinModal('unlock', '🔒 App entsperren', 'Gib deinen 4-stelligen Session-Passcode ein:', null);
       } else {
-        // App ist entsperrt -> Ein-Klick-Sperre für Eltern
         state.isLocked = true;
         saveState();
         applyLockStateUI();
@@ -2031,11 +2496,9 @@
       }
     });
 
-    // Öffnen der Einstellungen über das Zahnrad
     openSettingsBtn.addEventListener('click', () => {
       sound.init();
       if (state.isLocked) {
-        // Bei gesperrter App muss zuerst entsperrt werden
         openPinModal('unlock', '🔒 Einstellungen entsperren', 'Gib den Session-Passcode ein:', () => {
           settingsModal.classList.add('open');
         });
@@ -2054,13 +2517,16 @@
       }
     });
 
-    // Sperren / Entsperren Button im Modal
+    newGameModal.addEventListener('click', (e) => {
+      if (e.target === newGameModal) {
+        newGameModal.classList.remove('open');
+      }
+    });
+
     toggleLockBtn.addEventListener('click', () => {
       if (state.isLocked) {
-        // Entsperren aus dem Modal
         openPinModal('unlock', '🔒 App entsperren', 'Gib deinen 4-stelligen Session-Passcode ein:', null);
       } else {
-        // Sperren
         state.isLocked = true;
         saveState();
         applyLockStateUI();
@@ -2070,9 +2536,9 @@
       }
     });
 
-    // Neues Spiel
+    // Neues Spiel über Settings
     newGameBtn.addEventListener('click', () => {
-      openPinModal('newGame', '⭐ Neues Spiel starten', 'Wähle einen 4-stelligen Passcode für das neue Spiel:', null);
+      openNewGameModal();
     });
 
     // Passcode ändern
