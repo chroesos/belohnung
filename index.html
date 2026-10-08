@@ -94,41 +94,43 @@
       color: rgba(255, 255, 255, 0.65);
     }
 
-    /* Zentral zwischen oberer Bedienreihe und Figur: Belohnungs-Ziel (+20% vergrößert) */
+    /* Zentral zwischen oberer Bedienreihe und Figur: Belohnungs-Ziel (+20% vergrößert, bis 128 Zeichen voll sichtbar) */
     .goal-badge {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       background: rgba(255, 255, 255, 0.13);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       border: 1.5px solid rgba(255, 209, 92, 0.45);
-      border-radius: 999px;
-      padding: 8px 24px;
+      border-radius: 24px;
+      padding: 10px 24px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-      max-width: 85%;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+      max-width: 90%;
       z-index: 60;
       margin: 4px auto 6px auto;
       flex-shrink: 0;
       transition: all 0.25s ease;
+      white-space: normal;
+      word-break: break-word;
+      text-align: center;
     }
 
     .goal-badge .goal-icon {
       font-size: 1.38rem;
       flex-shrink: 0;
+      align-self: center;
     }
 
     .goal-badge .goal-text {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: #ffd15c;
       text-shadow: 0 2px 10px rgba(255, 209, 92, 0.4), 0 1px 8px rgba(0, 0, 0, 0.6);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.35;
+      text-align: center;
     }
 
     .header-actions {
@@ -1410,7 +1412,7 @@
     <header>
       <div class="counter-badge" aria-label="Aktueller Zählerstand">
         <span class="counter-value" id="counterValue">0</span>
-        <span class="counter-max">/ 10</span>
+        <span class="counter-max" id="counterMax">/ 10</span>
       </div>
 
       <div class="header-actions">
@@ -1539,8 +1541,18 @@
           <label style="font-size: 0.95rem; font-weight: 700; color: #ffd15c;" for="newGameGoalInput">
             🎯 Belohnungs-Ziel (optional):
           </label>
-          <input type="text" id="newGameGoalInput" class="modal-text-input" placeholder="z. B. 20 Min. iPad, Eis essen..." maxlength="40">
-          <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Wird zentral oben in der App angezeigt (leer lassen zum Ausblenden)</span>
+          <input type="text" id="newGameGoalInput" class="modal-text-input" placeholder="z. B. 20 Min. iPad, Eis essen... (bis 128 Zeichen)" maxlength="128">
+          <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Maximal 128 Zeichen – wird oben vollständig angezeigt</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 0.95rem; font-weight: 700; color: #67e8f9;" for="newGameMaxPointsInput">
+            🏆 Zu erreichende Punkte (3 bis 10):
+          </label>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="number" id="newGameMaxPointsInput" class="modal-text-input" min="3" max="10" value="10" style="font-size: 1.25rem; font-weight: 800; text-align: center; width: 100px; color: #ffd15c;">
+            <span style="font-size: 0.85rem; color: rgba(255,255,255,0.65);">Punkte bis zum Belohnungs-Ziel</span>
+          </div>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 6px;">
@@ -1595,16 +1607,31 @@
         </div>
       </div>
 
-      <!-- 2. Ziel ändern -->
+      <!-- 2. Ziel & Ziel-Punkte ändern -->
       <div class="control-card" style="margin-top: 2px;">
-        <div style="font-size: 0.9rem; font-weight: 700; color: #ffd15c; margin-bottom: 8px;">🎯 Ziel ändern</div>
-        <div style="display: flex; gap: 8px;">
-          <input type="text" id="settingsGoalInput" class="modal-text-input" placeholder="z. B. Eis essen, 20 Min. iPad..." maxlength="40" style="flex: 1; font-size: 0.95rem; padding: 10px 14px;">
-          <button class="primary-btn" id="saveGoalBtn" style="padding: 10px 18px; font-size: 0.92rem; background: #3b82f6; white-space: nowrap;">
-            Speichern
-          </button>
+        <div style="font-size: 0.9rem; font-weight: 700; color: #ffd15c; margin-bottom: 8px;">🎯 Ziel & Ziel-Punkte</div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="settingsGoalInput" class="modal-text-input" placeholder="z. B. Eis essen, 20 Min. iPad..." maxlength="128" style="flex: 1; font-size: 0.95rem; padding: 10px 14px;">
+            <button class="primary-btn" id="saveGoalBtn" style="padding: 10px 18px; font-size: 0.92rem; background: #3b82f6; white-space: nowrap;">
+              Speichern
+            </button>
+          </div>
+          <span style="font-size: 0.78rem; color: rgba(255,255,255,0.5);">Maximal 128 Zeichen – wird oben vollständig angezeigt</span>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: 0.9rem; font-weight: 700; color: #67e8f9;">🏆 Ziel-Punkte (3 bis 10):</span>
+              <span style="font-size: 0.76rem; color: rgba(255,255,255,0.5);">Erforderliche Punkte für Belohnung</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <input type="number" id="settingsMaxPointsInput" class="modal-text-input" min="3" max="10" value="10" style="width: 70px; padding: 6px 8px; text-align: center; font-size: 1.1rem; font-weight: 800; color: #ffd15c;">
+              <button class="primary-btn" id="saveMaxPointsBtn" style="padding: 8px 14px; font-size: 0.85rem; background: #10b981; white-space: nowrap;">
+                Übernehmen
+              </button>
+            </div>
+          </div>
         </div>
-        <span style="font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-top: 6px; display: block;">Wird oben in der App angezeigt (leer lassen zum Ausblenden)</span>
       </div>
 
       <!-- 3. Negatives Item On/Off (Checkbox / Switch) -->
@@ -2430,6 +2457,7 @@
       isLocked: false,
       passcode: '1234',
       goal: '',
+      maxPoints: 10,
       buttonLabelIndex: 0,
       sessionQuoteIndex: 0
     };
@@ -2439,7 +2467,8 @@
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (typeof parsed.count === 'number') state.count = Math.max(0, Math.min(10, parsed.count));
+          if (typeof parsed.maxPoints === 'number') state.maxPoints = Math.max(3, Math.min(10, parsed.maxPoints));
+          if (typeof parsed.count === 'number') state.count = Math.max(0, Math.min(state.maxPoints, parsed.count));
           if (parsed.characterSkin && SVG_ASSETS.characters[parsed.characterSkin]) state.characterSkin = parsed.characterSkin;
           if (parsed.positiveSkin && SVG_ASSETS.positive[parsed.positiveSkin]) state.positiveSkin = parsed.positiveSkin;
           if (parsed.negativeSkin && SVG_ASSETS.negative[parsed.negativeSkin]) state.negativeSkin = parsed.negativeSkin;
@@ -2447,7 +2476,7 @@
           if (typeof parsed.negativeItemActive === 'boolean') state.negativeItemActive = parsed.negativeItemActive;
           if (typeof parsed.isLocked === 'boolean') state.isLocked = parsed.isLocked;
           if (typeof parsed.passcode === 'string' && parsed.passcode.length === 4) state.passcode = parsed.passcode;
-          if (typeof parsed.goal === 'string') state.goal = parsed.goal;
+          if (typeof parsed.goal === 'string') state.goal = parsed.goal.slice(0, 128);
           if (typeof parsed.buttonLabelIndex === 'number') state.buttonLabelIndex = parsed.buttonLabelIndex;
           if (typeof parsed.sessionQuoteIndex === 'number') state.sessionQuoteIndex = parsed.sessionQuoteIndex;
         }
@@ -2469,6 +2498,7 @@
        ========================================================================== */
     const appEl = document.getElementById('app');
     const counterValueEl = document.getElementById('counterValue');
+    const counterMaxEl = document.getElementById('counterMax');
     const auraSystemEl = document.getElementById('auraSystem');
     const electricSystemEl = document.getElementById('electricSystem');
     const characterEl = document.getElementById('mainCharacter');
@@ -2488,7 +2518,7 @@
     const toastNotification = document.getElementById('toastNotification');
     const toastText = document.getElementById('toastText');
 
-    // Victory Modal (10 Punkte)
+    // Victory Modal
     const victoryModal = document.getElementById('victoryModal');
     const victoryQuoteText = document.getElementById('victoryQuoteText');
     const victoryNextBtn = document.getElementById('victoryNextBtn');
@@ -2496,6 +2526,7 @@
     // Neues Spiel Modal
     const newGameModal = document.getElementById('newGameModal');
     const newGameGoalInput = document.getElementById('newGameGoalInput');
+    const newGameMaxPointsInput = document.getElementById('newGameMaxPointsInput');
     const newGamePasscodeInput = document.getElementById('newGamePasscodeInput');
     const closeNewGameBtn = document.getElementById('closeNewGameBtn');
     const confirmNewGameBtn = document.getElementById('confirmNewGameBtn');
@@ -2510,6 +2541,8 @@
     const negativeToggle = document.getElementById('negativeToggle');
     const settingsGoalInput = document.getElementById('settingsGoalInput');
     const saveGoalBtn = document.getElementById('saveGoalBtn');
+    const settingsMaxPointsInput = document.getElementById('settingsMaxPointsInput');
+    const saveMaxPointsBtn = document.getElementById('saveMaxPointsBtn');
 
     // PIN Keypad Modal
     const pinModal = document.getElementById('pinModal');
@@ -2531,20 +2564,23 @@
     }
 
     /* ==========================================================================
-       Rotierende Feier-Sprüche (immer mit Fokus auf "Punkte" & hohe Varianz)
+       Rotierende Feier-Sprüche (dynamisch an state.maxPoints angepasst)
        ========================================================================== */
-    const VICTORY_QUOTES = [
-      "10 Punkte! Wow!\nBelohnung erarbeitet! 🎉",
-      "Unglaubliche 10 Punkte!\nDu hast es voll drauf! 🌟",
-      "10 von 10 Punkten geschafft!\nVolle Punktzahl für dich! 🏆",
-      "Alle 10 Punkte gesammelt!\nGroßartige Leistung! 🚀",
-      "10 Punkte erreicht!\nJetzt gibt es deine Belohnung! 🎁",
-      "Bäm! 10 Punkte auf dem Konto!\nEinfach meisterhaft! 💥",
-      "10 Punkte im Kasten!\nDu hast dich super angestrengt! 🎈",
-      "Volltreffer: 10 Punkte!\nDu bist heute Spitzenklasse! ✨",
-      "Perfekte 10 Punkte!\nZeit zum Feiern! 🥳",
-      "10 Punkte geholt!\nDas hast du dir ehrlich verdient! 🥇"
-    ];
+    function getVictoryQuotes() {
+      const p = state.maxPoints;
+      return [
+        `${p} Punkte! Wow!\nBelohnung erarbeitet! 🎉`,
+        `Unglaubliche ${p} Punkte!\nDu hast es voll drauf! 🌟`,
+        `${p} von ${p} Punkten geschafft!\nVolle Punktzahl für dich! 🏆`,
+        `Alle ${p} Punkte gesammelt!\nGroßartige Leistung! 🚀`,
+        `${p} Punkte erreicht!\nJetzt gibt es deine Belohnung! 🎁`,
+        `Bäm! ${p} Punkte auf dem Konto!\nEinfach meisterhaft! 💥`,
+        `${p} Punkte im Kasten!\nDu hast dich super angestrengt! 🎈`,
+        `Volltreffer: ${p} Punkte!\nDu bist heute Spitzenklasse! ✨`,
+        `Perfekte ${p} Punkte!\nZeit zum Feiern! 🥳`,
+        `${p} Punkte geholt!\nDas hast du dir ehrlich verdient! 🥇`
+      ];
+    }
 
     const VICTORY_BUTTON_LABELS = [
       "Klasse! 🎉",
@@ -2561,8 +2597,9 @@
 
     function startVictoryQuotes() {
       currentQuoteOffset = 0;
-      const initialIndex = (state.sessionQuoteIndex + currentQuoteOffset) % VICTORY_QUOTES.length;
-      victoryQuoteText.textContent = VICTORY_QUOTES[initialIndex];
+      const quotes = getVictoryQuotes();
+      const initialIndex = (state.sessionQuoteIndex + currentQuoteOffset) % quotes.length;
+      victoryQuoteText.textContent = quotes[initialIndex];
       victoryQuoteText.classList.remove('fade-out');
       victoryQuoteText.classList.add('fade-in');
 
@@ -2576,8 +2613,9 @@
         victoryQuoteText.classList.add('fade-out');
         setTimeout(() => {
           currentQuoteOffset++;
-          const nextIdx = (state.sessionQuoteIndex + currentQuoteOffset) % VICTORY_QUOTES.length;
-          victoryQuoteText.textContent = VICTORY_QUOTES[nextIdx];
+          const currentQuotes = getVictoryQuotes();
+          const nextIdx = (state.sessionQuoteIndex + currentQuoteOffset) % currentQuotes.length;
+          victoryQuoteText.textContent = currentQuotes[nextIdx];
           victoryQuoteText.classList.remove('fade-out');
           victoryQuoteText.classList.add('fade-in');
         }, 350);
@@ -2610,7 +2648,7 @@
       closeVictoryCelebration();
       state.count = 0;
       state.buttonLabelIndex = (state.buttonLabelIndex + 1) % VICTORY_BUTTON_LABELS.length;
-      state.sessionQuoteIndex = (state.sessionQuoteIndex + 1) % VICTORY_QUOTES.length;
+      state.sessionQuoteIndex = (state.sessionQuoteIndex + 1) % getVictoryQuotes().length;
       saveState();
       updateCounterDisplay();
       showToast('⭐ Neue Session gestartet! Punkte auf 0 gesetzt.');
@@ -2641,7 +2679,7 @@
         auraSystemEl.style.setProperty('--aura-scale', '0.6');
       } else {
         auraSystemEl.classList.add('active');
-        const ratio = state.count / 10;
+        const ratio = state.count / state.maxPoints;
         
         auraSystemEl.style.setProperty('--aura-intensity', ratio.toFixed(2));
         
@@ -2663,23 +2701,26 @@
     }
 
     /* ==========================================================================
-       Elektrisches Knistern Logik (8 Punkte = leicht, 9 Punkte = stark)
+       Elektrisches Knistern Logik (Leicht bei maxPoints-2, Stark bei maxPoints-1)
        ========================================================================== */
     function updateElectricEffect(prevCount) {
       if (!electricSystemEl) return;
       electricSystemEl.classList.remove('level-mild', 'level-intense');
       characterEl.classList.remove('electric-pulsing-mild', 'electric-pulsing-intense');
 
-      if (state.count === 8) {
+      const mildThreshold = Math.max(1, state.maxPoints - 2);
+      const intenseThreshold = Math.max(2, state.maxPoints - 1);
+
+      if (state.count === mildThreshold) {
         electricSystemEl.classList.add('level-mild');
         characterEl.classList.add('electric-pulsing-mild');
-        if (prevCount !== undefined && prevCount !== 8) {
+        if (prevCount !== undefined && prevCount !== mildThreshold) {
           sound.playElectricCrackle('mild');
         }
-      } else if (state.count === 9) {
+      } else if (state.count === intenseThreshold) {
         electricSystemEl.classList.add('level-intense');
         characterEl.classList.add('electric-pulsing-intense');
-        if (prevCount !== undefined && prevCount !== 9) {
+        if (prevCount !== undefined && prevCount !== intenseThreshold) {
           sound.playElectricCrackle('intense');
         }
       }
@@ -2687,12 +2728,16 @@
 
     function updateCounterDisplay(prevCount, isPositiveEvent = false) {
       counterValueEl.textContent = state.count;
+      if (counterMaxEl) {
+        counterMaxEl.textContent = `/ ${state.maxPoints}`;
+      }
 
       updateAuraAnimation(isPositiveEvent);
       updateElectricEffect(prevCount);
 
       const slots = progressBarEl.children;
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < state.maxPoints; i++) {
+        if (!slots[i]) continue;
         if (i < state.count) {
           if (!slots[i].classList.contains('active')) {
             slots[i].classList.add('active');
@@ -2715,7 +2760,7 @@
       negItemEl.innerHTML = SVG_ASSETS.negative[state.negativeSkin];
 
       progressBarEl.innerHTML = '';
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < state.maxPoints; i++) {
         const slot = document.createElement('div');
         slot.className = 'progress-slot' + (i < state.count ? ' active' : '');
         slot.innerHTML = SVG_ASSETS.characters[state.characterSkin];
@@ -2738,6 +2783,9 @@
 
       if (settingsGoalInput) {
         settingsGoalInput.value = state.goal || '';
+      }
+      if (settingsMaxPointsInput) {
+        settingsMaxPointsInput.value = state.maxPoints || 10;
       }
 
       applyNegativeItemVisibility();
@@ -2833,9 +2881,9 @@
        ========================================================================== */
     function applyReward() {
       const prev = state.count;
-      if (state.count < 10) {
-        state.count = Math.min(10, state.count + 1);
-        if (state.count === 10) {
+      if (state.count < state.maxPoints) {
+        state.count = Math.min(state.maxPoints, state.count + 1);
+        if (state.count === state.maxPoints) {
           triggerVictoryCelebration();
         } else {
           sound.playPositive();
@@ -3069,11 +3117,14 @@
     }
 
     /* ==========================================================================
-       Neues Spiel Modal (Ziel-Text & Passcode festlegen)
+       Neues Spiel Modal (Ziel-Text & Passcode & Ziel-Punkte festlegen)
        ========================================================================== */
     function openNewGameModal() {
       newGameGoalInput.value = state.goal || '';
       newGamePasscodeInput.value = state.passcode || '1234';
+      if (newGameMaxPointsInput) {
+        newGameMaxPointsInput.value = state.maxPoints || 10;
+      }
       newGameModal.classList.add('open');
     }
 
@@ -3082,8 +3133,11 @@
     });
 
     confirmNewGameBtn.addEventListener('click', () => {
-      const goalVal = newGameGoalInput.value.trim();
+      const goalVal = newGameGoalInput.value.trim().slice(0, 128);
       const passVal = newGamePasscodeInput.value.trim();
+      let maxPts = parseInt(newGameMaxPointsInput.value, 10);
+      if (isNaN(maxPts) || maxPts < 3) maxPts = 3;
+      if (maxPts > 10) maxPts = 10;
 
       if (passVal.length !== 4) {
         alert('Bitte gib einen 4-stelligen Passcode ein.');
@@ -3091,11 +3145,13 @@
       }
 
       state.goal = goalVal;
+      state.maxPoints = maxPts;
       state.passcode = passVal;
       state.count = 0;
       state.isLocked = false; // Startet unlocked
 
       saveState();
+      renderCharactersAndItems();
       updateGoalDisplay();
       applyLockStateUI();
       updateCounterDisplay();
@@ -3103,7 +3159,7 @@
       newGameModal.classList.remove('open');
       settingsModal.classList.remove('open');
 
-      showToast(state.goal ? `⭐ Neues Spiel mit Ziel: "${state.goal}" gestartet!` : '⭐ Neues Spiel gestartet!');
+      showToast(state.goal ? `⭐ Neues Spiel (Ziel: "${state.goal}", ${state.maxPoints} Punkte) gestartet!` : `⭐ Neues Spiel mit ${state.maxPoints} Punkten gestartet!`);
       sound.playVictory();
     });
 
@@ -3128,9 +3184,13 @@
       if (settingsGoalInput) {
         settingsGoalInput.value = state.goal || '';
       }
+      if (settingsMaxPointsInput) {
+        settingsMaxPointsInput.value = state.maxPoints || 10;
+      }
       if (state.isLocked) {
         openPinModal('unlock', '🔒 Einstellungen entsperren', 'Gib den Session-Passcode ein:', () => {
           if (settingsGoalInput) settingsGoalInput.value = state.goal || '';
+          if (settingsMaxPointsInput) settingsMaxPointsInput.value = state.maxPoints || 10;
           settingsModal.classList.add('open');
         });
       } else {
@@ -3169,7 +3229,7 @@
 
     // Ziel in Settings speichern
     saveGoalBtn.addEventListener('click', () => {
-      const newGoal = settingsGoalInput.value.trim();
+      const newGoal = settingsGoalInput.value.trim().slice(0, 128);
       state.goal = newGoal;
       saveState();
       updateGoalDisplay();
@@ -3182,6 +3242,34 @@
         saveGoalBtn.click();
       }
     });
+
+    // Ziel-Punkte in Settings speichern (3 bis 10)
+    if (saveMaxPointsBtn) {
+      saveMaxPointsBtn.addEventListener('click', () => {
+        let maxPts = parseInt(settingsMaxPointsInput.value, 10);
+        if (isNaN(maxPts) || maxPts < 3) maxPts = 3;
+        if (maxPts > 10) maxPts = 10;
+        settingsMaxPointsInput.value = maxPts;
+
+        state.maxPoints = maxPts;
+        if (state.count > state.maxPoints) {
+          state.count = state.maxPoints;
+        }
+        saveState();
+        renderCharactersAndItems();
+        updateCounterDisplay();
+        showToast(`🏆 Ziel-Punkte auf ${state.maxPoints} gesetzt!`);
+        sound.playPositive();
+      });
+    }
+
+    if (settingsMaxPointsInput) {
+      settingsMaxPointsInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          saveMaxPointsBtn.click();
+        }
+      });
+    }
 
     // Neues Spiel über Settings (schließt sofort das Settings-Fenster)
     newGameBtn.addEventListener('click', () => {
