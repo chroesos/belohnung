@@ -94,38 +94,38 @@
       color: rgba(255, 255, 255, 0.65);
     }
 
-    /* Zentral oben: Belohnungs-Ziel Display */
+    /* Zentral zwischen oberer Bedienreihe und Figur: Belohnungs-Ziel (+20% vergrößert) */
     .goal-badge {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.12);
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.13);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 209, 92, 0.4);
+      border: 1.5px solid rgba(255, 209, 92, 0.45);
       border-radius: 999px;
-      padding: 6px 18px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
-      max-width: 42%;
+      padding: 8px 24px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      max-width: 85%;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
       z-index: 60;
+      margin: 4px auto 6px auto;
+      flex-shrink: 0;
+      transition: all 0.25s ease;
     }
 
     .goal-badge .goal-icon {
-      font-size: 1.15rem;
+      font-size: 1.38rem;
       flex-shrink: 0;
     }
 
     .goal-badge .goal-text {
-      font-size: 1rem;
+      font-size: 1.2rem;
       font-weight: 700;
       color: #ffd15c;
-      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+      text-shadow: 0 2px 10px rgba(255, 209, 92, 0.4), 0 1px 8px rgba(0, 0, 0, 0.6);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -526,6 +526,184 @@
       40% { transform: translateX(22px) rotate(8deg) scale(0.92); }
       60% { transform: translateX(-16px) rotate(-5deg); }
       80% { transform: translateX(12px) rotate(5deg); }
+    }
+
+    /* ==========================================================================
+       Elektrisches Knistern um die Figur (8 & 9 Punkte)
+       ========================================================================== */
+    .electric-system {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 250px;
+      height: 250px;
+      pointer-events: none;
+      z-index: 6;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .electric-system.level-mild {
+      /* 8 Punkte: Leichtes elektrisches Knistern */
+      opacity: 0.85;
+      filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.85));
+    }
+
+    .electric-system.level-intense {
+      /* 9 Punkte: Starkes elektrisches Knistern */
+      opacity: 1;
+      filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.95)) drop-shadow(0 0 28px rgba(255, 215, 0, 0.65));
+      animation: electricIntenseShake 0.12s infinite alternate ease-in-out;
+    }
+
+    .electric-svg {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .lightning-bolt {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0;
+      transform-origin: center;
+    }
+
+    .electric-system.level-mild .lightning-bolt {
+      stroke: #67e8f9;
+      stroke-width: 2.2;
+      animation: boltJitterMild 0.28s infinite steps(2, start);
+    }
+
+    .electric-system.level-intense .lightning-bolt {
+      stroke: #ffffff;
+      stroke-width: 3.6;
+      filter: drop-shadow(0 0 6px #00f0ff);
+      animation: boltJitterIntense 0.12s infinite steps(2, start);
+    }
+
+    .lightning-bolt.bolt-1 { animation-delay: 0.02s; }
+    .lightning-bolt.bolt-2 { animation-delay: 0.07s; }
+    .lightning-bolt.bolt-3 { animation-delay: 0.11s; }
+    .lightning-bolt.bolt-4 { animation-delay: 0.05s; }
+
+    .electric-arc {
+      fill: none;
+      stroke-dasharray: 14 18 26 14;
+      opacity: 0;
+      transform-origin: center;
+    }
+
+    .electric-system.level-mild .electric-arc {
+      stroke: #38bdf8;
+      opacity: 0.7;
+      stroke-width: 2;
+      animation: arcSpinCw 2.2s linear infinite, arcFlicker 0.2s infinite alternate;
+    }
+
+    .electric-system.level-intense .electric-arc {
+      stroke: #7dd3fc;
+      opacity: 1;
+      stroke-width: 3.5;
+      stroke-dasharray: 22 10 38 12;
+      animation: arcSpinCw 0.75s linear infinite, arcFlicker 0.09s infinite alternate;
+    }
+
+    .electric-arc.arc-inner {
+      stroke: #ffffff;
+      animation-direction: reverse;
+    }
+
+    .spark-emitter {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .spark {
+      position: absolute;
+      font-size: 1.1rem;
+      opacity: 0;
+      filter: drop-shadow(0 0 8px #00f0ff);
+      transform-origin: center;
+    }
+
+    .electric-system.level-mild .spark {
+      animation: sparkFloatMild 0.75s infinite ease-out;
+      font-size: 1.05rem;
+    }
+
+    .electric-system.level-intense .spark {
+      animation: sparkFloatIntense 0.38s infinite ease-out;
+      font-size: 1.4rem;
+    }
+
+    .spark.s1 { top: 8%; left: 46%; animation-delay: 0.0s; }
+    .spark.s2 { top: 22%; right: 8%; animation-delay: 0.18s; }
+    .spark.s3 { bottom: 18%; right: 12%; animation-delay: 0.32s; }
+    .spark.s4 { bottom: 8%; left: 42%; animation-delay: 0.12s; }
+    .spark.s5 { bottom: 22%; left: 8%; animation-delay: 0.25s; }
+    .spark.s6 { top: 22%; left: 10%; animation-delay: 0.4s; }
+
+    @keyframes boltJitterMild {
+      0% { opacity: 0; transform: scale(0.96) rotate(0deg); }
+      30% { opacity: 0.85; transform: scale(1.02) rotate(4deg); }
+      60% { opacity: 0.2; transform: scale(0.98) rotate(-3deg); }
+      80% { opacity: 0.9; transform: scale(1.04) rotate(2deg); }
+      100% { opacity: 0; transform: scale(1) rotate(0deg); }
+    }
+
+    @keyframes boltJitterIntense {
+      0% { opacity: 0.2; transform: scale(0.94) rotate(-5deg); stroke: #38bdf8; }
+      25% { opacity: 1; transform: scale(1.08) rotate(6deg); stroke: #ffffff; }
+      50% { opacity: 0.4; transform: scale(0.98) rotate(-7deg); stroke: #67e8f9; }
+      75% { opacity: 1; transform: scale(1.1) rotate(5deg); stroke: #ffffff; }
+      100% { opacity: 0.3; transform: scale(0.95) rotate(-2deg); stroke: #00f0ff; }
+    }
+
+    @keyframes arcSpinCw {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes arcFlicker {
+      0% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes sparkFloatMild {
+      0% { opacity: 0; transform: scale(0.6) translate(0, 0); }
+      50% { opacity: 0.95; transform: scale(1.1) translate(4px, -8px); }
+      100% { opacity: 0; transform: scale(0.5) translate(8px, -16px); }
+    }
+
+    @keyframes sparkFloatIntense {
+      0% { opacity: 0; transform: scale(0.7) translate(0, 0); }
+      40% { opacity: 1; transform: scale(1.35) translate(-10px, -14px); }
+      100% { opacity: 0; transform: scale(0.4) translate(-18px, -25px); }
+    }
+
+    @keyframes electricIntenseShake {
+      0% { transform: translate(-50%, -50%) rotate(-1deg) scale(1.02); }
+      100% { transform: translate(-50%, -50%) rotate(1deg) scale(1.05); }
+    }
+
+    /* Figur reagiert zusätzlich auf das Knistern bei 8 & 9 */
+    .character.electric-pulsing-mild {
+      filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.75)) drop-shadow(0 15px 25px rgba(0, 0, 0, 0.45));
+    }
+    .character.electric-pulsing-intense {
+      filter: drop-shadow(0 0 22px rgba(0, 240, 255, 0.95)) drop-shadow(0 0 35px rgba(255, 209, 92, 0.6)) drop-shadow(0 15px 25px rgba(0, 0, 0, 0.45));
+      animation: characterJolt 0.16s infinite alternate ease-in-out;
+    }
+
+    @keyframes characterJolt {
+      0% { transform: scale(1) translateY(0); }
+      100% { transform: scale(1.03) translateY(-2px); }
     }
 
     /* ==========================================================================
@@ -1118,7 +1296,15 @@
       width: 100vw;
       height: 100vh;
       pointer-events: none;
-      z-index: 250;
+      z-index: 210;
+    }
+
+    /* Ziel-erreicht Box vor dem Feuerwerk */
+    #victoryModal {
+      z-index: 300;
+      background: rgba(5, 7, 18, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
     }
 
     .victory-modal-card {
@@ -1227,12 +1413,6 @@
         <span class="counter-max">/ 10</span>
       </div>
 
-      <!-- Zentral oben: Belohnungs-Ziel (ausgeblendet wenn leer) -->
-      <div class="goal-badge" id="goalBadge" style="display: none;">
-        <span class="goal-icon">🎯</span>
-        <span class="goal-text" id="goalText"></span>
-      </div>
-
       <div class="header-actions">
         <!-- Schneller Lock/Unlock Button in der Leiste -->
         <button class="lock-state-btn is-unlocked" id="headerLockBtn" aria-label="Sperrstatus ändern">
@@ -1249,6 +1429,12 @@
         </button>
       </div>
     </header>
+
+    <!-- Zentral zwischen oberer Bedienreihe und Figur: Belohnungs-Ziel -->
+    <div class="goal-badge" id="goalBadge" style="display: none;">
+      <span class="goal-icon">🎯</span>
+      <span class="goal-text" id="goalText"></span>
+    </div>
 
     <!-- Spiel-Arena (Figur bleibt immer exakt zentriert) -->
     <main class="arena" id="arenaMain">
@@ -1271,6 +1457,25 @@
           <div class="aura-layer aura-glow"></div>
           <div class="aura-layer aura-rays"></div>
           <div class="aura-layer aura-ring"></div>
+        </div>
+        <!-- Elektrisches Knistern (8 Punkte = leicht, 9 Punkte = stark) -->
+        <div class="electric-system" id="electricSystem" aria-hidden="true">
+          <svg class="electric-svg" viewBox="0 0 200 200">
+            <path class="lightning-bolt bolt-1" d="M 100,10 L 96,40 L 105,42 L 95,75 L 102,78 L 98,110 L 104,115 L 97,145 L 103,150 L 100,190"/>
+            <path class="lightning-bolt bolt-2" d="M 10,100 L 40,96 L 42,105 L 75,94 L 78,103 L 110,97 L 114,105 L 145,96 L 150,102 L 190,100"/>
+            <path class="lightning-bolt bolt-3" d="M 35,35 L 60,55 L 55,62 L 85,80 L 80,88 L 115,110 L 110,118 L 140,140 L 135,148 L 165,165"/>
+            <path class="lightning-bolt bolt-4" d="M 165,35 L 140,55 L 145,62 L 115,80 L 120,88 L 85,110 L 90,118 L 60,140 L 65,148 L 35,165"/>
+            <circle class="electric-arc arc-outer" cx="100" cy="100" r="92" />
+            <circle class="electric-arc arc-inner" cx="100" cy="100" r="86" />
+          </svg>
+          <div class="spark-emitter">
+            <span class="spark s1">⚡</span>
+            <span class="spark s2">⚡</span>
+            <span class="spark s3">⚡</span>
+            <span class="spark s4">⚡</span>
+            <span class="spark s5">⚡</span>
+            <span class="spark s6">⚡</span>
+          </div>
         </div>
         <div class="character" id="mainCharacter">
           <!-- Dynamisches SVG der Figur -->
@@ -2033,12 +2238,34 @@
           osc.stop(now + 0.42);
         });
       }
+
+      playElectricCrackle(intensity = 'mild') {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const count = intensity === 'intense' ? 5 : 2;
+        for (let i = 0; i < count; i++) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          const baseFreq = intensity === 'intense' ? 680 + Math.random() * 420 : 420 + Math.random() * 220;
+          osc.frequency.setValueAtTime(baseFreq, now + i * 0.04);
+          osc.frequency.exponentialRampToValueAtTime(110, now + i * 0.04 + 0.035);
+          const vol = intensity === 'intense' ? 0.08 : 0.035;
+          gain.gain.setValueAtTime(vol, now + i * 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.04 + 0.035);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.04);
+          osc.stop(now + i * 0.04 + 0.04);
+        }
+      }
     }
 
     const sound = new SoundEffects();
 
     /* ==========================================================================
-       Feuerwerk-Engine (HTML5 Canvas, 60fps, touch-optimiert, 0 Libs)
+       Feuerwerk-Engine (HTML5 Canvas, 60fps optimiert, Null Lag, 0 Libs)
        ========================================================================== */
     class FireworksEngine {
       constructor(canvas) {
@@ -2048,6 +2275,7 @@
         this.particles = [];
         this.isRunning = false;
         this.spawnTimer = null;
+        this.animFrameId = null;
         this.resize();
         window.addEventListener('resize', () => this.resize());
       }
@@ -2059,22 +2287,23 @@
 
       start() {
         this.resize();
+        this.stop();
         this.isRunning = true;
         this.rockets = [];
         this.particles = [];
         this.loop();
 
-        if (this.spawnTimer) clearInterval(this.spawnTimer);
-
-        for (let i = 0; i < 3; i++) {
-          setTimeout(() => this.spawnRocket(), i * 160);
+        for (let i = 0; i < 2; i++) {
+          setTimeout(() => {
+            if (this.isRunning) this.spawnRocket();
+          }, i * 180);
         }
 
         this.spawnTimer = setInterval(() => {
           if (this.isRunning) {
             this.spawnRocket();
           }
-        }, 380);
+        }, 440);
       }
 
       stop() {
@@ -2083,12 +2312,19 @@
           clearInterval(this.spawnTimer);
           this.spawnTimer = null;
         }
+        if (this.animFrameId) {
+          cancelAnimationFrame(this.animFrameId);
+          this.animFrameId = null;
+        }
+        if (this.ctx) {
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
       }
 
       spawnRocket() {
         const x = Math.random() * (this.canvas.width * 0.72) + this.canvas.width * 0.14;
-        const targetY = Math.random() * (this.canvas.height * 0.42) + this.canvas.height * 0.12;
-        const speed = Math.random() * 4 + 13;
+        const targetY = Math.random() * (this.canvas.height * 0.4) + this.canvas.height * 0.12;
+        const speed = Math.random() * 3.5 + 12;
         const colors = [
           '#ffd700', '#ff2a6d', '#05d9e8', '#00ff87', '#ff9f1c', '#9b5de5', '#ffffff'
         ];
@@ -2103,10 +2339,14 @@
       }
 
       explode(x, y, color) {
-        const count = Math.floor(Math.random() * 25 + 55);
+        const count = Math.floor(Math.random() * 12 + 32);
+        // Obergrenze aktiver Partikel gegen Akkumulation / Lag
+        if (this.particles.length > 80) {
+          this.particles.splice(0, this.particles.length - 60);
+        }
         for (let i = 0; i < count; i++) {
           const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.2 - 0.1);
-          const speed = Math.random() * 5.5 + 2.2;
+          const speed = Math.random() * 4.5 + 2.0;
           this.particles.push({
             x,
             y,
@@ -2114,8 +2354,8 @@
             vy: Math.sin(angle) * speed,
             color,
             alpha: 1,
-            decay: Math.random() * 0.013 + 0.015,
-            size: Math.random() * 2.8 + 2
+            decay: Math.random() * 0.015 + 0.018,
+            size: Math.random() * 2.2 + 2
           });
         }
       }
@@ -2123,6 +2363,7 @@
       loop() {
         if (!this.isRunning && this.rockets.length === 0 && this.particles.length === 0) {
           this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          this.animFrameId = null;
           return;
         }
 
@@ -2131,12 +2372,13 @@
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.globalCompositeOperation = 'lighter';
 
+        // Raketen zeichnen
         for (let i = this.rockets.length - 1; i >= 0; i--) {
           const r = this.rockets[i];
           r.y -= r.speed;
           this.ctx.fillStyle = r.color;
           this.ctx.beginPath();
-          this.ctx.arc(r.x, r.y, 3.2, 0, Math.PI * 2);
+          this.ctx.arc(r.x, r.y, 3, 0, Math.PI * 2);
           this.ctx.fill();
 
           if (r.y <= r.targetY) {
@@ -2145,6 +2387,7 @@
           }
         }
 
+        // Partikel blitzschnell ohne CPU-fressenden shadowBlur zeichnen
         for (let i = this.particles.length - 1; i >= 0; i--) {
           const p = this.particles[i];
           p.x += p.vx;
@@ -2157,19 +2400,16 @@
           if (p.alpha <= 0) {
             this.particles.splice(i, 1);
           } else {
-            this.ctx.save();
             this.ctx.globalAlpha = p.alpha;
             this.ctx.fillStyle = p.color;
-            this.ctx.shadowBlur = 8;
-            this.ctx.shadowColor = p.color;
             this.ctx.beginPath();
             this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             this.ctx.fill();
-            this.ctx.restore();
           }
         }
+        this.ctx.globalAlpha = 1;
 
-        requestAnimationFrame(() => this.loop());
+        this.animFrameId = requestAnimationFrame(() => this.loop());
       }
     }
 
@@ -2230,6 +2470,7 @@
     const appEl = document.getElementById('app');
     const counterValueEl = document.getElementById('counterValue');
     const auraSystemEl = document.getElementById('auraSystem');
+    const electricSystemEl = document.getElementById('electricSystem');
     const characterEl = document.getElementById('mainCharacter');
     const posItemEl = document.getElementById('posItem');
     const negItemEl = document.getElementById('negItem');
@@ -2421,10 +2662,34 @@
       }
     }
 
+    /* ==========================================================================
+       Elektrisches Knistern Logik (8 Punkte = leicht, 9 Punkte = stark)
+       ========================================================================== */
+    function updateElectricEffect(prevCount) {
+      if (!electricSystemEl) return;
+      electricSystemEl.classList.remove('level-mild', 'level-intense');
+      characterEl.classList.remove('electric-pulsing-mild', 'electric-pulsing-intense');
+
+      if (state.count === 8) {
+        electricSystemEl.classList.add('level-mild');
+        characterEl.classList.add('electric-pulsing-mild');
+        if (prevCount !== undefined && prevCount !== 8) {
+          sound.playElectricCrackle('mild');
+        }
+      } else if (state.count === 9) {
+        electricSystemEl.classList.add('level-intense');
+        characterEl.classList.add('electric-pulsing-intense');
+        if (prevCount !== undefined && prevCount !== 9) {
+          sound.playElectricCrackle('intense');
+        }
+      }
+    }
+
     function updateCounterDisplay(prevCount, isPositiveEvent = false) {
       counterValueEl.textContent = state.count;
 
       updateAuraAnimation(isPositiveEvent);
+      updateElectricEffect(prevCount);
 
       const slots = progressBarEl.children;
       for (let i = 0; i < 10; i++) {
