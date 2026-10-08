@@ -485,12 +485,12 @@
       box-shadow: 0 0 40px 10px rgba(16, 185, 129, 0.65);
     }
 
-    /* Figur-Container */
+    /* Figur-Container (stets im Vordergrund) */
     .character {
       position: relative;
       width: 180px;
       height: 180px;
-      z-index: 2;
+      z-index: 10;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -531,7 +531,7 @@
     }
 
     /* ==========================================================================
-       Elektrisches Knistern um die Figur (8 & 9 Punkte)
+       Elektrisches Knistern um die Figur (im Hintergrund hinter der Figur)
        ========================================================================== */
     .electric-system {
       position: absolute;
@@ -541,7 +541,7 @@
       width: 250px;
       height: 250px;
       pointer-events: none;
-      z-index: 6;
+      z-index: 2;
       opacity: 0;
       transition: opacity 0.35s ease;
     }
